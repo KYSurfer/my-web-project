@@ -1,0 +1,104 @@
+@font-face {
+    font-family: 'Dessau-Heavy';
+    src: url(@/assets/fonts/Dessau-Heavy.ttf) format('truetype');
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Uncage';
+    src: url(@/assets/fonts/Uncage.ttf) format('truetype');
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'EkiR';
+    src: url(@/assets/fonts/EkiR.otf) format('opentype');
+    font-style: normal;
+    font-display: swap;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+:root {
+    --bon-blue: #4a7a8c;
+    --bon-blue-dark: #2d4a55;
+    --banny-purple: #7b4a8c;
+    --vintage-yellow: #d4a84a;
+    --blood-red: #8b0000;
+    --static-gray: #6b6b6b;
+    --dark-bg: #0a0a0a;
+    --darker-bg: #050505;
+    --text-light: #e8e8e8;
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes glitch {
+    0%, 90%, 100% {text-shadow: 0 0 0;}
+    92% {text-shadow: 3px 0 var(--blood-red), -3px 0 var(--bon-blue); }
+    94% { text-shadow: -3px 0 var(--blood-red), 3px 0 var(--bon-blue);}
+    96% { text-shadow: 3px 0 var(--blood-red), -3px 0 var(--bon-blue);}
+}
+
+.CRT {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 100;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.2),
+        rgba(0, 0, 0, 0.2) 2px, 
+        transparent 1px,          
+        transparent 3px   
+    );
+    animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker{
+    0% { 
+        opacity: 0.95; 
+    }
+    50% { 
+        opacity: 1; 
+    }
+    100% { 
+        opacity: 0.96; 
+    }
+}
+
+.nav-link {
+    text-decoration: none;
+    color:gray;
+}
+
+.nav-link::before {
+    opacity: 0;
+    content: '► ';
+}
+
+.nav-link.active::before {
+    opacity: 1;
+}
+
+.nav-link.active,
+.nav-link:hover {
+    color: var(--vintage-yellow);
+}
