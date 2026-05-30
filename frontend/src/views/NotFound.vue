@@ -20,7 +20,7 @@
   </main>
 </template>
 
-<script scoped src="@/assets/styles/views/NotFound.css">
+<script>
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
