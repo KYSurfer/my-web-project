@@ -5,6 +5,7 @@
                 <span class="login__back-txt">◄ На главную</span>  
             </div>
         </router-link>
+        
         <div class="login__form">
             <div class="login__form-info">
                 <div class="login__form-info-head">
@@ -15,185 +16,165 @@
                 <form @submit.prevent="handleSubmit">
                     <div class="login__form-info-email">
                         <label class="login__form-info-email-txt">Email</label>
-                        <input type="email" placeholder="►► Email" v-model="form.email" class="login-input" required>
+                        <input 
+                            type="email" 
+                            placeholder="►► Email" 
+                            v-model="form.email" 
+                            @blur="validateEmail"
+                            class="login-input" 
+                            :class="{ 'input-error': errors.email }"
+                            required
+                        >
+                        <span v-if="errors.email" class="input-error-text">{{ errors.email }}</span>
                     </div>
+                    
                     <div class="login__form-info-password">
                         <label class="login__form-info-password-txt">Пароль</label>
-                        <input type="password" placeholder="►► Пароль" v-model="form.password" class="login-input" required>
+                        <input 
+                            type="password" 
+                            placeholder="►► Пароль" 
+                            v-model="form.password" 
+                            @blur="validatePassword"
+                            class="login-input" 
+                            :class="{ 'input-error': errors.password }"
+                            required
+                        >
+                        <span v-if="errors.password" class="input-error-text">{{ errors.password }}</span>
                     </div>
-                    <button type="submit" :disabled="isLoading" class="login__btn">{{ isLoading ? 'Вход...' : '► Войти' }}</button>
+                    
+                    <div v-if="serverError" class="login__toast error">
+                        {{ serverError }}
+                    </div>
+                    
+                    <button type="submit" :disabled="isLoading || !isFormValid" class="login__btn">
+                        {{ isLoading ? 'Вход...' : '► Войти' }}
+                    </button>
                 </form>
-                <div>
+                
+                <div class="login__register-link">
                     <span>У меня нет аккаунта?</span>
                     <router-link to="/auth/register">Создать аккаунт</router-link>
                 </div>
+
+                <div class="login__recovery-link">
+                    <router-link to="/auth/recovery" class="login__recovery-txt">
+                    Забыли пароль?
+                    </router-link>
+                </div>
             </div>
-            <div>
-                <img src="../assets/images/Bons.webp" alt="Bons Burger restaraunt photo" class="login__img">
+            
+            <div class="login__img-wrapper">
+                <template v-if="imageLoading">
+                    <div class="login__img-skeleton"></div>
+                </template>
+                
+                <template v-else-if="imageError">
+                    <div class="login__img-error">🍔</div>
+                </template>
+                
+                <template v-else>
+                    <img 
+                        :src="loginImageUrl" 
+                        alt="Bons Burger" 
+                        class="login__img"
+                        @error="handleImageError"
+                        crossorigin="anonymous"
+                    >
+                </template>
             </div>
         </div>
-    </main>
+    </main> 
 </template>
 
-<script>
-import api from '@/plugins/axios'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import axios from 'axios'
 
-export default {
-    name: 'Login',
-    data() {
-        return{
-            form: { email: '', password: ''},
-            isLoading: false,
-            serverError: ''
-        }
-    },
-    methods: {
-        async handleSubmit() {
-            this.serverError = ''
-            this.isLoading = true
+const router = useRouter()
+const authStore = useAuthStore()
 
-            try {
-                const response = await api.post('/auth/login', this.form)
+const form = ref({ email: '', password: '' })
+const errors = ref({ email: '', password: '' })
+const serverError = ref('')
+const isLoading = ref(false)  // 🔥 ДОБАВЛЕНО: состояние загрузки
 
-                localStorage.setItem('authToken', response.data.token)
-                localStorage.setItem('user', JSON.stringify(response.data.user))
+const loginImageUrl = ref(null)
+const imageLoading = ref(true)
+const imageError = ref(false)
 
-                this.$router.push('/profile')
-            }
-            catch (error){
-                this.serverError = error.response?.data?.message || 'Ошибка входа'
-            } finally {
-                this.isLoading = false
-            }
-        }
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+
+const fetchLoginImage = async () => {
+    imageLoading.value = true
+    imageError.value = false
+    try {
+        const res = await axios.get(`${API_BASE}/home/login-page-image`)
+        loginImageUrl.value = res.data.imageUrl || res.data.image || res.data
+    } catch (e) {
+        console.warn('Не удалось загрузить картинку логина:', e)
+        imageError.value = true
+    } finally {
+        imageLoading.value = false
     }
 }
 
+const handleImageError = () => {
+    imageError.value = true
+    imageLoading.value = false
+}
+
+const validateEmail = () => {
+    const email = form.value.email.trim()
+    if (!email) {
+        errors.value.email = 'Email обязателен'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.value.email = 'Некорректный формат email'
+    } else {
+        errors.value.email = ''
+    }
+}
+
+const validatePassword = () => {
+    const password = form.value.password
+    if (!password) {
+        errors.value.password = 'Пароль обязателен'
+    } else if (password.length < 6) {
+        errors.value.password = 'Минимум 6 символов'
+    } else {
+        errors.value.password = ''
+    }
+}
+
+const isFormValid = computed(() => {
+    return form.value.email && form.value.password && !errors.value.email && !errors.value.password
+})
+
+const handleSubmit = async () => {
+    validateEmail()
+    validatePassword()
+    if (!isFormValid.value) return
+    
+    serverError.value = ''
+    isLoading.value = true
+    
+    try {
+        await authStore.login({ email: form.value.email, password: form.value.password })
+        const redirect = router.currentRoute.value.query.redirect || '/'
+        router.push(redirect)
+    } catch (e) {
+        serverError.value = authStore.error || 'Ошибка входа'
+    } finally {
+        isLoading.value = false
+    }
+}
+
+onMounted(() => {
+    fetchLoginImage()
+})
 </script>
 
-<style>
-.login-input::-moz-placeholder {
-    font-family: 'EkiR', sans-serif !important;
-    font-size: 7px !important;
-    color: #999 !important;
-    opacity: 1 !important;
-}
+<style scoped src="@/assets/styles/views/Login.css">
 
-.login__link {
-    text-decoration: none;
-}
-
-.login__back {
-    padding-top: 20px;
-    padding-left: 20px;
-    text-decoration: none;
-}
-
-.login__back-txt {
-    font-family: 'Uncage';
-    text-decoration: none;
-    color: gray;
-}
-
-.login {
-    background: linear-gradient(135deg, #0a0a0a 0%, #2d4a55 50%, #4a2d55 100%);
-    min-height: 100vh;
-    width: 100%;
-    overflow-x: hidden;
-}
-
-.login__form {
-    margin: 200px auto;
-    
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 50px;
-    
-    padding: 50px;
-    border-radius: 30px;
-    box-shadow: 0 0 40px rgba(196, 177, 2, 0.644);
-    
-    width: fit-content;      
-    max-width: 100%;
-}
-
-.login__form-info {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-.login__form-info-head {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.login__form-info-header {
-    color: aliceblue;
-    font-family: 'Uncage';
-}
-
-.login__form-info-undertext {
-    font-family: 'EkiR';
-    color: gray;
-    font-size: 10px;
-}
-
-.login__form-info-email,
-.login__form-info-password {
-    font-family: 'Uncage';
-}
-
-.login-input {
-    font-family: 'Uncage', sans-serif;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.login__form-info-password-txt,
-.login__form-info-email-txt{
-    color: white;
-}
-
-.login__img{
-    height: 500px;
-    border-top-right-radius: 30px;
-    border-bottom-right-radius: 30px;
-}
-
-.login__btn {
-    padding: 15px;
-    background: var(--vintage-yellow, #f4d03f);
-    color: black;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-family: 'Uncage', sans-serif;
-}
-
-.login__btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 4px 4px 0 var(--blood-red, #8b0000);
-}
-
-.login__btn:disabled {
-    background: gray;
-    cursor: not-allowed;
-}
-
-.login__register-link {
-    text-align: center;
-    color: gray;
-    font-family: 'Uncage';
-}
-
-.login__register-link a {
-    color: var(--vintage-yellow, #f4d03f);
-    text-decoration: none;
-}
 </style>

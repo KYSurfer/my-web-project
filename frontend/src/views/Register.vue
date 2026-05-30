@@ -12,6 +12,7 @@
                     <h1 class="register__form-info-header">Создание аккаунта</h1>
                     <h3 class="register__form-info-undertext">Добро пожаловать!</h3>
                 </div>
+                
                 <form @submit.prevent="handleSubmit">
                     <div class="register__form-info-username">
                         <label class="register__form-info-username-txt">Имя пользователя</label>
@@ -19,9 +20,12 @@
                             type="text" 
                             v-model="form.username" 
                             placeholder="►► Имя" 
-                            class="register-input" 
+                            class="register-input"
+                            @blur="validateUsername"
+                            :class="{ 'input-error': errors.username }"
                             required
                         >
+                        <span v-if="errors.username" class="input-error-text">{{ errors.username }}</span>
                     </div>
 
                     <div class="register__form-info-email">
@@ -30,9 +34,24 @@
                             type="email" 
                             v-model="form.email" 
                             placeholder="►► Email" 
-                            class="register-input" 
+                            class="register-input"
+                            @blur="validateEmail"
+                            :class="{ 'input-error': errors.email }"
                             required
                         >
+                        <span v-if="errors.email" class="input-error-text">{{ errors.email }}</span>
+                    </div>
+
+                    <div class="register__recovery-section">
+                        <label class="register__recovery-title">ВОССТАНОВЛЕНИЕ ПАРОЛЯ</label>
+                        
+                        <input 
+                            v-model="recoveryKeyword" 
+                            type="text" 
+                            placeholder="►► Например: кличка питомца" 
+                            class="register__recovery-input"
+                            minlength="4"
+                        />
                     </div>
 
                     <div class="register__form-info-password">
@@ -41,17 +60,15 @@
                             type="password" 
                             v-model="form.password" 
                             placeholder="►► Пароль" 
-                            class="register-input" 
+                            class="register-input"
+                            @blur="validatePassword"
+                            :class="{ 'input-error': errors.password }"
                             required
-                            minlength="6"
                         >
+                        <span v-if="errors.password" class="input-error-text">{{ errors.password }}</span>
                     </div>
 
-                    <button 
-                        type="submit" 
-                        :disabled="isLoading" 
-                        class="register__btn"
-                    >
+                    <button type="submit" :disabled="isLoading || !isFormValid" class="register__btn">
                         {{ isLoading ? 'Регистрация...' : '► Зарегистрироваться' }}
                     </button>
                 </form>
@@ -61,183 +78,164 @@
                     <router-link to="/auth/login">Войти</router-link>
                 </div>
 
-                <div class="register__toast error" v-if="serverError">
+                <div v-if="serverError" class="register__toast error">
                     {{ serverError }}
                 </div>
             </div>
 
-            <div>
-                <img src="../assets/images/Bons.webp" alt="Bons Burger restaurant photo" class="register__img">
+            <div class="register__img-wrapper">
+                <template v-if="imageLoading">
+                    <div class="register__img-skeleton"></div>
+                </template>
+                
+                <template v-else-if="imageError">
+                    <div class="register__img-error">
+                        <span>--Логотип--</span>
+                    </div>
+                </template>
+                
+                <template v-else>
+                    <img 
+                        :src="registerImageUrl" 
+                        alt="Bons Burger" 
+                        class="register__img"
+                        @error="handleImageError"
+                        crossorigin="anonymous"
+                    >
+                </template>
             </div>
         </div>
     </main>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import api from '@/plugins/axios'
 
-export default {
-    name: 'Register',
-    data() {
-        return {
-            form: { username: '', email: '', password: '' },
-            isLoading: false,
-            serverError: '' 
-        }
-    },
-    methods: {
-        async handleSubmit() {
-            this.serverError = ''
-            this.isLoading = true
+const router = useRouter()
+const authStore = useAuthStore()
 
-            try {
-                const response = await api.post('/auth/register', this.form)
-                
-                localStorage.setItem('authToken', response.data.token)
-                localStorage.setItem('user', JSON.stringify(response.data.user))
-                
-                this.$router.push('/profile')
-            } catch (error) {
-                this.serverError = error.response?.data?.message || 'Ошибка регистрации'
-            } finally {
-                this.isLoading = false
-            }
-        }
+const form = ref({ username: '', email: '', password: '' })
+const errors = ref({ username: '', email: '', password: '' })
+const serverError = ref('')
+const isLoading = ref(false)
+
+const registerImageUrl = ref(null)
+const imageLoading = ref(true)
+const imageError = ref(false)
+
+const recoveryKeyword = ref('')
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+
+const fetchRegisterImage = async () => {
+    imageLoading.value = true
+    imageError.value = false
+    try {
+        const res = await api.get('/home/register-page-image')
+        registerImageUrl.value = res.data.imageUrl || res.data.image || res.data
+    } catch (e) {
+        console.warn('Не удалось загрузить картинку регистрации:', e)
+        imageError.value = true
+    } finally {
+        imageLoading.value = false
     }
 }
+
+const handleImageError = () => {
+    imageError.value = true
+    imageLoading.value = false
+}
+
+const validateUsername = () => {
+    const name = form.value.username.trim()
+    if (!name) {
+        errors.value.username = 'Имя обязательно'
+    } else if (name.length < 3) {
+        errors.value.username = 'Минимум 3 символа'
+    } else {
+        errors.value.username = ''
+    }
+}
+
+const validateEmail = () => {
+    const email = form.value.email.trim()
+    if (!email) {
+        errors.value.email = 'Email обязателен'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.value.email = 'Некорректный формат email'
+    } else {
+        errors.value.email = ''
+    }
+}
+
+const validatePassword = () => {
+    const password = form.value.password
+    if (!password) {
+        errors.value.password = 'Пароль обязателен'
+    } else if (password.length < 6) {
+        errors.value.password = 'Минимум 6 символов'
+    } else {
+        errors.value.password = ''
+    }
+}
+
+const isFormValid = computed(() => {
+    return form.value.username && form.value.email && form.value.password &&
+           !errors.value.username && !errors.value.email && !errors.value.password
+})
+
+const handleSubmit = async () => {
+    validateUsername()
+    validateEmail()
+    validatePassword()
+    
+    if (!isFormValid.value) return
+    
+    serverError.value = ''
+    isLoading.value = true
+    
+    try {
+        // 🔥 1. Регистрируем пользователя
+        const response = await api.post('/auth/register', {
+            username: form.value.username,
+            email: form.value.email,
+            password: form.value.password
+        })
+        
+        // 🔥 2. Сохраняем авторизацию
+        localStorage.setItem('authToken', response.data.token)
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        
+        authStore.token = response.data.token
+        authStore.user = response.data.user
+        
+        // 🔥 3. Если введено секретное слово (мин. 4 символа) — сохраняем автоматически
+        if (recoveryKeyword.value.trim().length >= 4) {
+            await api.post('/auth/recovery/keyword', {
+                keyword: recoveryKeyword.value.trim()
+            }, {
+                headers: { Authorization: `Bearer ${response.data.token}` }
+            })
+            console.log('✅ Секретное слово сохранено')
+        }
+        
+        router.push('/profile')
+        
+    } catch (error) {
+        serverError.value = error.response?.data?.error || 'Ошибка регистрации'
+        console.error('Register error:', error)
+    } finally {
+        isLoading.value = false
+    }
+}
+
+onMounted(() => {
+    fetchRegisterImage()
+})
 </script>
 
-<style>
-.register {
-    background: linear-gradient(135deg, #0a0a0a 0%, #2d4a55 50%, #4a2d55 100%);
-    min-height: 100vh;
-    width: 100%;
-    overflow-x: hidden;
-}
-
-.register-input::-moz-placeholder {
-    font-family: 'EkiR', sans-serif !important;
-    font-size: 7px !important;
-    color: #999 !important;
-    opacity: 1 !important;
-}
-
-.register__link {
-    text-decoration: none;
-}
-
-.register__back {
-    padding-top: 20px;
-    padding-left: 20px;
-    text-decoration: none;
-}
-
-.register__back-txt {
-    font-family: 'Uncage';
-    text-decoration: none;
-    color: gray;
-}
-
-.register__form {
-    margin: 200px auto;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 50px;
-    padding: 50px;
-    border-radius: 30px;
-    box-shadow: 0 0 40px rgba(196, 177, 2, 0.644);
-    width: fit-content;
-    max-width: 100%;
-}
-
-.register__form-info {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-.register__form-info-head {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.register__form-info-header {
-    color: aliceblue;
-    font-family: 'Uncage';
-}
-
-.register__form-info-undertext {
-    font-family: 'EkiR';
-    color: gray;
-    font-size: 10px;
-}
-
-.register__form-info-email,
-.register__form-info-password,
-.register__form-info-username {
-    font-family: 'Uncage';
-}
-
-.register-input {
-    font-family: 'Uncage', sans-serif;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.register__form-info-password-txt,
-.register__form-info-email-txt,
-.register__form-info-username-txt {
-    color: white;
-}
-
-.register__img {
-    height: 500px;
-    border-top-right-radius: 30px;
-    border-bottom-right-radius: 30px;
-}
-
-.register__btn {
-    padding: 15px;
-    background: var(--vintage-yellow, #f4d03f);
-    color: black;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-family: 'Uncage', sans-serif;
-}
-
-.register__btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 4px 4px 0 var(--blood-red, #8b0000);
-}
-
-.register__btn:disabled {
-    background: gray;
-    cursor: not-allowed;
-}
-
-.register__login-link {
-    text-align: center;
-    color: gray;
-    font-family: 'Uncage';
-}
-
-.register__login-link a {
-    color: var(--vintage-yellow, #f4d03f);
-    text-decoration: none;
-}
-
-.register__toast.error {
-    padding: 15px;
-    background: var(--blood-red, #8b0000);
-    color: white;
-    border-radius: 5px;
-    text-align: center;
-    font-family: 'Uncage';
-}
+<style scoped src="@/assets/styles/views/Register.css">
 </style>
