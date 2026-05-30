@@ -1,0 +1,99 @@
+.main-content__block{
+    width: 300px !important;
+    font-family: 'Uncage', sans-serif;
+    color: rgb(223, 223, 223);
+    font-size: 20px;
+    margin: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 3px solid var(--vintage-yellow);
+    box-shadow: 5px 5px var(--blood-red);
+    padding: 15px; 
+    min-height: 450px;
+    box-sizing: border-box;
+}
+
+.main-content__block-img{
+    border: 3px solid var(--vintage-yellow);
+    width: 100%;
+    max-width: 270px;
+    display:block;
+    margin-bottom: 15px;
+}
+
+.animatronic-card__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  flex: 1;
+}
+
+.animatronic-card__name {
+  text-align: center;
+  font-family: 'Uncage', sans-serif;
+  font-size: 30px;
+  font-weight: bold;
+  margin: 0;
+  line-height: 1.2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.animatronic-card__alias {
+  text-align: center;
+  font-family: 'EkiR', sans-serif;
+  font-size: 12px;
+  color: rgb(167, 161, 161);
+  margin: 0;
+  font-style: italic;
+}
+
+.animatronic-card__desc {
+  text-align: center;
+  font-family: 'Uncage', sans-serif;
+  font-size: 16px;
+  color: rgb(223, 223, 223);
+  line-height: 1.4;
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  flex: 1;
+}
+
+.animatronic-card__btn {
+  font-family: 'Uncage', sans-serif;
+    margin-top: auto;
+  padding: 10px 24px;
+  background-color: var(--vintage-yellow);
+  border: none;
+  box-shadow: 3px 3px 0 var(--blood-red);
+  color: black;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: center;
+}
+
+.animatronic-card__btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--blood-red);
+}
+
+@media (max-width: 480px) {
+  .main-content__block {
+    width: 90%;
+    max-width: 320px;
+  }
+  .animatronic-card__name {
+    font-size: 20px;
+  }
+  .animatronic-card__desc {
+    font-size: 14px;
+  }
+}

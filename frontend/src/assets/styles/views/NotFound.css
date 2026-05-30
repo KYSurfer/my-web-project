@@ -1,0 +1,109 @@
+.not-found {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f1a 100%);
+  padding: 20px;
+  text-align: center;
+}
+
+.not-found__content {
+  max-width: 500px;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 3px solid var(--vintage-yellow, #f4d03f);
+  border-radius: 20px;
+  box-shadow: 0 0 40px rgba(244, 208, 63, 0.3);
+}
+
+.not-found__code {
+  font-family: 'Dessau-Heavy', sans-serif;
+  font-size: 80px;
+  color: var(--blood-red, #da0a0a);
+  text-shadow: 3px 3px 0 var(--vintage-yellow);
+  margin: 0 0 10px;
+  line-height: 1;
+}
+
+.not-found__title {
+  font-family: 'Uncage', sans-serif;
+  font-size: 28px;
+  color: var(--vintage-yellow);
+  margin: 0 0 20px;
+}
+
+.not-found__text {
+  font-family: 'EkiR', sans-serif;
+  color: #ccc;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.not-found__actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.not-found__btn {
+  padding: 12px 30px;
+  font-family: 'Uncage', sans-serif;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.not-found__btn--primary {
+  background: var(--vintage-yellow);
+  color: black;
+  box-shadow: 3px 3px 0 var(--blood-red);
+}
+
+.not-found__btn--primary:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0 var(--blood-red);
+}
+
+.not-found__btn--secondary {
+  background: transparent;
+  color: var(--vintage-yellow);
+  border: 2px solid var(--vintage-yellow);
+}
+
+.not-found__btn--secondary:hover {
+  background: rgba(244, 208, 63, 0.1);
+  transform: translate(-2px, -2px);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@media (max-width: 480px) {
+  .not-found__code {
+    font-size: 60px;
+  }
+  
+  .not-found__title {
+    font-size: 22px;
+  }
+  
+  .not-found__actions {
+    flex-direction: column;
+  }
+  
+  .not-found__btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

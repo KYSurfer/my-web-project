@@ -1,0 +1,222 @@
+.about-page {
+  background-color: #000;
+  color: rgb(223, 223, 223);
+  font-family: 'Uncage', sans-serif;
+  padding-bottom: 100px;
+}
+
+.about-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 150px 20px 80px;
+  /* background: linear-gradient(180deg, #000 0%, #111 100%); */
+  text-align: center;
+}
+
+.about-hero__title-ru {
+  font-family: 'Uncage', sans-serif;
+  font-size: 50px;
+  color: aliceblue;
+  text-shadow: -5px 5px 0 var(--blood-red);
+  margin: 0;
+}
+
+.about-hero__title-eng {
+  font-family: 'Dessau-Heavy', sans-serif;
+  font-size: 70px;
+  color: var(--vintage-yellow);
+  margin: -10px 0 20px;
+  text-shadow: -5px 5px 0 var(--blood-red);
+}
+
+.about-hero__subtitle {
+  font-size: 20px;
+  line-height: 1.6;
+  color: rgb(200, 200, 200);
+  max-width: 700px;
+  margin: 0 auto;
+  display: block;
+}
+
+.about-intro {
+  max-width: 800px;
+  margin: 0 auto 80px;
+  padding: 100px 20px;
+}
+
+.about-intro__text {
+  font-size: 18px;
+  line-height: 1.8;
+  color: rgb(223, 223, 223);
+}
+
+.about-intro__text p {
+  margin-bottom: 20px;
+}
+
+.timeline-section {
+  max-width: 900px;
+  margin: 0 auto 100px;
+  padding: 0 20px;
+}
+
+.timeline-section__title {
+  font-family: 'Uncage', sans-serif;
+  font-size: 36px;
+  color: var(--vintage-yellow);
+  text-align: center;
+  margin-bottom: 60px;
+  text-shadow: -3px 3px 0 var(--blood-red);
+}
+
+.timeline-era {
+  margin-bottom: 60px;
+  padding: 30px;
+  border: 2px solid var(--bon-blue-dark, #1a4d7a);
+  border-radius: 12px;
+  background: rgba(26, 77, 122, 0.1);
+}
+
+.timeline-item {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+  padding-bottom: 25px;
+  /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
+}
+
+.timeline-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.timeline-item__year {
+  flex: 0 0 100px;
+  font-family: 'Dessau-Heavy', sans-serif;
+  font-size: 18px;
+  color: var(--vintage-yellow);
+  text-align: right;
+}
+
+.timeline-item__content {
+  flex: 1;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.timeline-item__content p {
+  margin: 0 0 10px;
+}
+
+.timeline-item__content ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.timeline-item__content li {
+  margin-bottom: 8px;
+}
+
+.timeline-item__content strong {
+  color: var(--vintage-yellow);
+}
+
+.about-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  padding: 0 20px;
+}
+
+.about-btn {
+  padding: 20px 40px;
+  background-color: var(--vintage-yellow);
+  border: none;
+  box-shadow: 5px 5px 0 var(--blood-red);
+  font-family: 'Uncage', sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.about-btn:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 8px 8px 0 var(--blood-red, #da0a0a);
+}
+
+@media (max-width: 768px) {
+  .about-hero {
+    padding: 100px 16px 40px;
+  }
+  .about-hero__title-ru {
+    font-size: 32px;
+  }
+  .about-hero__title-eng {
+    font-size: 42px;
+    margin-bottom: 10px;
+  }
+  .about-hero__subtitle {
+    font-size: 16px;
+  }
+
+  .about-intro {
+    padding: 40px 16px 60px;
+  }
+  .about-intro__text {
+    text-align: center;
+    font-size: 16px;
+  }
+  .about-intro__text p {
+    margin-bottom: 16px;
+  }
+
+  .timeline-section {
+    padding: 0 10px;
+  }
+  .timeline-section__title {
+    font-size: 28px;
+    margin-bottom: 30px;
+  }
+  .timeline-era {
+    padding: 16px;
+    margin-bottom: 40px;
+  }
+  
+  .timeline-item {
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    text-align: center;
+  }
+  
+  .timeline-item__year {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 5px;
+  }
+  
+  .timeline-item__content {
+    font-size: 15px;
+    text-align: left;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .about-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  .about-btn {
+    width: 100%;
+    max-width: 300px;
+    padding: 15px;
+    font-size: 16px;
+  }
+}

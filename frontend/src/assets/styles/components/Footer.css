@@ -1,0 +1,111 @@
+.footer {
+  background-color: black;
+  border-top: 3px solid var(--vintage-yellow);
+  overflow: hidden;
+}
+
+.footer__main {
+  margin-top: 50px;
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 150px;
+}
+
+.footer__main-logo {
+  display: flex;
+  align-items: center;
+}
+
+.footer__main-logo-img {
+  width: 50px;
+  object-fit: cover;
+}
+
+.footer__main-logo-text {
+  display: flex;
+  font-family: 'Dessau-', sans-serif;
+  color: gray;
+  flex-direction: column;
+}
+
+.footer__main-logo-text-name {
+  font-family: 'Dessau-Heavy', sans-serif;
+  text-shadow: -2px 2px var(--blood-red);
+  color: var(--vintage-yellow);
+}
+
+.footer__main-logo-text-est {
+  font-family: 'EkiR';
+  margin-top: -5px;
+  font-size: 8px;
+}
+
+.footer__main-under-logo {
+  display: flex;
+  flex-direction: column;
+  font-family: 'EkiR';
+  color: gray;
+  gap: 10px;
+  font-size: 8px;
+  margin-block: 20px;
+}
+
+.footer__main-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-family: 'Uncage';
+  color: var(--text-light);
+}
+
+.footer__bottom {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 30px;
+  font-family: 'EkiR', sans-serif;
+  font-size: 8px;
+  color: var(--text-light);
+  gap: 5px;
+}
+
+.footer__bottom-txt {
+  padding-inline: 100px;
+  border-top: 1px solid var(--vintage-yellow);
+  width: fit-content;
+  padding-top: 20px;
+}
+
+.footer__logo-skeleton {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(90deg, #1a1a2e 25%, #2a2a4e 50%, #1a1a2e 75%);
+  background-size: 200% 100%;
+  border: 2px solid var(--vintage-yellow);
+  border-radius: 8px;
+  animation: skeleton-pulse 1.5s infinite;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.footer__logo-error {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+  border: 2px solid var(--blood-red);
+  border-radius: 8px;
+  color: var(--blood-red);
+  font-size: 20px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
