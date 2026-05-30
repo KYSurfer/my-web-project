@@ -1,95 +1,255 @@
-import { createRouter, createWebHistory } from 'vue-router'
+// import { createRouter, createWebHistory } from 'vue-router'
+// import { useAuthStore } from '../stores/auth' 
+// import { createPinia } from 'pinia'
+// import Home from '../views/Home.vue'
+// import AboutUs from '../views/AboutUs.vue'
+// import Stars from '../views/Stars.vue'
+// import Merch from '../views/Merch.vue'
+// import Cast from '../views/Cast.vue'
+// import Menu from '../views/Menu.vue'
+// import Login from '../views/Login.vue'
+// import Register from '../views/Register.vue'
+// import Profile from '../views/Profile.vue'
+// import Orders from '../views/Orders.vue'
+// import Admin from '../views/Admin.vue'
+// import Cart from '../views/Cart.vue'
+// import ProductPage from '../views/ProductPage.vue'
 
+// const routes = [
+//   { path: '/', name: 'Home', component: Home },
+//   { path: '/about-us', name: 'AboutUs', component: AboutUs },
+//   { path: '/stars', name: 'Stars', component: Stars },
+//   { path: '/merch', name: 'Merch', component: Merch },
+//   { path: '/cast', name: 'Cast', component: Cast },
+//   { path: '/menu', name: 'Menu', component: Menu },
+
+//   {
+//     path: '/auth/login',
+//     name: 'Login',
+//     component: Login,
+//     meta: { hideHeader: true, guestOnly: true }
+//   },
+//   {
+//     path: '/auth/register',
+//     name: 'Register',
+//     component: Register,
+//     meta: { hideHeader: true, guestOnly: true }
+//   },
+//   {
+//     path: '/profile',
+//     name: 'Profile',
+//     component: Profile,
+//     meta: { requiresAuth: true }
+//   },
+//   {
+//     path: '/profile/orders',
+//     name: 'Orders',
+//     component: Orders,
+//     meta: { requiresAuth: true }
+//   },
+//   {
+//     path: '/profile/cart',              
+//     name: 'Cart',                       
+//     component: () => import('@/views/Cart.vue'),  
+//     meta: { requiresAuth: true }        
+//   },
+//   {
+//     path: '/admin',
+//     name: 'Admin',
+//     component: Admin,
+//     meta: { requiresAuth: true, requiresAdmin: true }
+//   },
+//   {
+//     path: '/product/:id',
+//     name: 'ProductPage',
+//     component: ProductPage,
+//     props: true
+//   },
+//   {
+//     path: '/:pathMatch(.*)*',
+//     name: 'NotFound',
+//     component: () => import('../views/NotFound.vue')
+//   }
+// ]
+
+// const router = createRouter({
+//   history: createWebHistory(),
+//   routes,
+//   scrollBehavior(to, from, savedPosition) {
+//     return { top: 0, left: 0 }
+//   }
+// })
+
+// // 🔥 ИСПРАВЛЕННЫЙ GUARD: проверяем localStorage напрямую
+// router.beforeEach((to, from, next) => {
+//   // 🔥 Синхронная проверка — работает мгновенно, без await
+//   const rawToken = localStorage.getItem('authToken')
+//   const rawUser = localStorage.getItem('user')
+  
+//   // 🔥 Если токен есть в localStorage, но нет в store — восстанавливаем
+//   if (rawToken && rawUser) {
+//     const auth = useAuthStore()
+//     if (!auth.token) {
+//       auth.token = rawToken
+//       auth.user = JSON.parse(rawUser)
+//     }
+//   }
+  
+//   // 🔥 Теперь проверяем авторизацию по rawToken (надёжнее, чем auth.isAuthenticated)
+//   if (to.meta.requiresAuth && !rawToken) {
+//     return next({ path: '/auth/login', query: { redirect: to.fullPath } })
+//   }
+  
+//   // 🔥 Гостевые страницы: если авторизован — редиректим в профиль
+//   if (to.meta.guestOnly && rawToken) {
+//     return next({ path: '/profile' })
+//   }
+  
+//   // 🔥 Админ-страницы: проверяем роль
+//   if (to.meta.requiresAdmin) {
+//     try {
+//       const user = rawUser ? JSON.parse(rawUser) : null
+//       if (!user || user.role !== 'admin') {
+//         return next({ path: rawToken ? '/profile' : '/auth/login' })
+//       }
+//     } catch {
+//       return next({ path: '/auth/login' })
+//     }
+//   }
+  
+//   next() // ✅ Всё ок, пропускаем
+// })
+
+// export default router
+import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/auth' 
+import { createPinia } from 'pinia'
 import Home from '../views/Home.vue'
 import AboutUs from '../views/AboutUs.vue'
 import Stars from '../views/Stars.vue'
 import Merch from '../views/Merch.vue'
-import News from '../views/News.vue'
 import Cast from '../views/Cast.vue'
 import Menu from '../views/Menu.vue'
-import Login from "../views/Login.vue"
+import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Profile from '../views/Profile.vue'
+import Orders from '../views/Orders.vue'
+import Admin from '../views/Admin.vue'
+import Cart from '../views/Cart.vue'
+import ProductPage from '../views/ProductPage.vue'
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/about-us',
-    name: 'About-us',
-    component: AboutUs
-  },
-  {
-    path: '/stars',
-    name: 'Stars',
-    component: Stars
-  },
-  {
-    path: '/merch',
-    name: 'Merch',
-    component: Merch
-  },
-  {
-    path: '/news',
-    name: 'News',
-    component: News
-  },
-  {
-    path: '/cast',
-    name: 'Cast',
-    component: Cast
-  },
-  {
-    path: '/menu',
-    name: 'Menu',
-    component: Menu
-  },
+  { path: '/', name: 'Home', component: Home },
+  { path: '/about-us', name: 'AboutUs', component: AboutUs },
+  { path: '/stars', name: 'Stars', component: Stars },
+  { path: '/merch', name: 'Merch', component: Merch },
+  { path: '/cast', name: 'Cast', component: Cast },
+  { path: '/menu', name: 'Menu', component: Menu },
   {
     path: '/auth/login',
     name: 'Login',
     component: Login,
-    meta: {
-      hideHeader: true,
-      hideFooter: true,
-      guestOnly: true
-    }
+    meta: { hideHeader: true, guestOnly: true }
   },
   {
     path: '/auth/register',
     name: 'Register',
     component: Register,
-    meta: {
-      hideHeader: true,
-      guestOnly: true
-    }
+    meta: { hideHeader: true, guestOnly: true }
   },
   {
     path: '/profile',
     name: 'Profile',
     component: Profile,
-    meta: {
-      requiresAuth: true
-    }
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile/orders',
+    name: 'Orders',
+    component: Orders,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile/cart',              
+    name: 'Cart',                       
+    component: () => import('@/views/Cart.vue'),  
+    meta: { requiresAuth: true }        
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: Admin,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/product/:id',
+    name: 'ProductPage',
+    component: ProductPage,
+    props: true
+  },
+
+   
+  // 🔥 ДОБАВЬТЕ ТОЛЬКО ЭТОТ БЛОК:
+  {
+    path: '/character/:id',
+    name: 'CharacterPage',
+    component: () => import('../views/CharacterPage.vue'),
+    props: true
+  },
+
+  {
+  path: '/cast/:id',
+  name: 'CastDetail',
+  component: () => import('../views/CharacterPage.vue'), // 👈 Тот же компонент
+  props: true
+},
+
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('../views/NotFound.vue')
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    return { top: 0, left: 0 }
+  }
 })
 
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('authToken')
+  const rawToken = localStorage.getItem('authToken')
+  const rawUser = localStorage.getItem('user')
   
-  if (to.meta.requiresAuth && !token) {
-    return next('/auth/login')
+  if (rawToken && rawUser) {
+    const auth = useAuthStore()
+    if (!auth.token) {
+      auth.token = rawToken
+      auth.user = JSON.parse(rawUser)
+    }
   }
-  if (to.meta.guestOnly && token) {
-    return next('/profile')
+  
+  if (to.meta.requiresAuth && !rawToken) {
+    return next({ path: '/auth/login', query: { redirect: to.fullPath } })
   }
+  
+  if (to.meta.guestOnly && rawToken) {
+    return next({ path: '/profile' })
+  }
+  
+  if (to.meta.requiresAdmin) {
+    try {
+      const user = rawUser ? JSON.parse(rawUser) : null
+      if (!user || user.role !== 'admin') {
+        return next({ path: rawToken ? '/profile' : '/auth/login' })
+      }
+    } catch {
+      return next({ path: '/auth/login' })
+    }
+  }
+  
   next()
 })
 
