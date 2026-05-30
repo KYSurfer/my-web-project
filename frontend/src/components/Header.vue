@@ -2,10 +2,27 @@
     <header class="header">
         <div class="header__logo">
             <router-link to="/" class="header__llink">
-                <img src="../assets/images/bons-burgers-logo-removebg.png" alt="Bon's Burgers лого" class="header__llink-img"/>
+                <template v-if="logoLoading">
+                    <div class="header__logo-skeleton"></div>
+                </template>
+                <template v-else-if="logoError">
+                    <div class="header__logo-error">🍔</div>
+                </template>
+                
+                <template v-else>
+                    <img 
+                        :src="logoUrl" 
+                        alt="Bon's Burgers лого" 
+                        class="header__llink-img"
+                        @error="handleLogoError"
+                        crossorigin="anonymous"
+                    />
+                </template>
+                
                 <span class="header__llink-text">BON'S BURGERS</span>
             </router-link>
         </div>
+        
         <nav class="header__nav">
             <router-link to="/" class="nav-link" active-class="active">Главная</router-link>
             <router-link to="/stars" class="nav-link" active-class="active">Наши звезды</router-link>
@@ -13,84 +30,201 @@
             <router-link to="/merch" class="nav-link" active-class="active">Товары</router-link>
             <router-link to="/cast" class="nav-link" active-class="active">Персонал</router-link>
             <router-link to="/about-us" class="nav-link" active-class="active">О нас</router-link>
+            <router-link 
+                v-if="loggedIn" 
+                to="/profile/cart" 
+                class="nav-link" 
+                active-class="active"
+            >
+                Корзина
+            </router-link>
         </nav>
-        <div class="header__search-container">
-            <input type="text">
+        <div class="header__search-container" ref="searchContainer">
+            <input 
+                type="text" 
+                v-model="searchQuery"
+                @input="handleInput"
+                @focus="showResults = true"
+                @keydown.enter="navigateToFirst"
+                @keydown.escape="closeSearch"
+                placeholder="Поиск по сайту..."
+                class="header__search-input"
+            >
+            <div v-if="showResults && searchResults.length > 0" class="search-dropdown">
+                <div 
+                    v-for="item in searchResults" 
+                    :key="item.id" 
+                    class="search-item"
+                    @click="goTo(item)"
+                >
+                    <img :src="item.image" alt="" class="search-item-img" v-if="item.image">
+                    <div class="search-item-text">
+                        <span class="search-item-title">{{ item.title }}</span>
+                        <span class="search-item-cat">{{ item.type_label }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
         <div>
-            <!-- ✅ ЗАМЕНИТЕ пустой div на это -->
             <div class="header__profile" v-if="loggedIn">
-                <div 
-                    class="header__avatar" 
-                    @click="toggleDropdown"
-                    ref="avatarRef"
-                >
-            <span class="header__avatar-letter">
-                {{ userInitial }}
-            </span>
-        
-            <div class="header__dropdown" v-if="isDropdown" v-on:click="ProfileOpener">
+                <div class="header__avatar" @click="toggleDropdown" ref="avatarRef">
+                    <span class="header__avatar-letter">{{ userInitial }}</span>
+            
+                    <div class="header__dropdown" v-if="isDropdown" @click="ProfileOpener">
                         <div class="dropdown__header">
-                        <span class="dropdown__avatar-letter">{{ userInitial }}</span>
+                            <span class="dropdown__avatar-letter">{{ userInitial }}</span>
                             <div class="dropdown__user-info">
                                 <span class="dropdown__username">{{ user?.username }}</span>
-                                <span class="dropdown__email">{{ user?.email }}</span>
                             </div>
                         </div>
             
                         <div class="dropdown__divider"></div>
             
-                        <router-link to="/profile" class="dropdown__link" @click="closeDropdown">
-                            👤 Профиль
+                        <router-link to="/profile" class="dropdown__link" @click="closeDropdown">Профиль</router-link>
+                        <router-link v-if="isAdmin" to="/admin" class="dropdown__link dropdown__admin" @click="closeDropdown">
+                            Админ-панель
                         </router-link>
-            
-                        <button @click="logout" class="dropdown__link dropdown__logout">
-                            🚪 Выйти
-                        </button>
+
+                        <button @click="logout" class="dropdown__link dropdown__logout">Выйти</button>
                     </div>
                 </div>
             </div>
             <router-link to="/auth/login" class="header__login" v-else>
-                <img src="@/assets/images/user-icon.png" alt="Значок входа в аккаунт" class="header__login-img">
+                <template v-if="loginIconLoading">
+                    <div class="header__login-icon-skeleton"></div>
+                </template>
+                <template v-else-if="loginIconError">
+                    <div class="header__login-icon-error">🔐</div>
+                </template>
+                <template v-else>
+                    <img 
+                        :src="loginIconUrl" 
+                        alt="Значок входа в аккаунт" 
+                        class="header__login-img"
+                        @error="handleLoginIconError"
+                        crossorigin="anonymous"
+                    >
+                </template>
+                
                 <span class="header__login-text">Авторизация</span>
             </router-link>
         </div>
-        </header>
+    </header>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
     name: 'Header',
     data() {
         return {
             isDropdown: false,
-            user: null
+            user: null,
+            searchQuery: '',
+            searchResults: [],
+            showResults: false,
+            searchTimer: null,
+            logoUrl: null,
+            logoLoading: true,
+            logoError: false,
+            loginIconUrl: null,
+            loginIconLoading: true,
+            loginIconError: false
         }
     },
     computed: {
         loggedIn() {
-            return !!localStorage.getItem('authToken')
+            return !!localStorage.getItem('authToken') && !!localStorage.getItem('user')
         },
         userInitial() {
-            return this.user?.username?.charAt(0).toUpperCase() || 'U'
+            const userStr = localStorage.getItem('user')
+            if (!userStr) return ''
+            try {
+                const user = JSON.parse(userStr)
+                return user.username?.charAt(0).toUpperCase() || ''
+            } catch {
+                return ''
+            }
+        },
+        isAdmin() {
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || '{}')
+                return user.role === 'admin'
+            } catch {
+                return false
+            }
         }
     },
-    
-    mounted() {
+    created() {
         this.loadUser()
+        this.fetchLogo()
+        this.fetchLoginIcon()
+        this.fetchCartCount()
+    },
+    mounted() {
         document.addEventListener('click', this.handleClickOutside)
     },
-    
     beforeUnmount() {
         document.removeEventListener('click', this.handleClickOutside)
     },
-    
     methods: {
+        async fetchLogo() {
+            this.logoLoading = true
+            this.logoError = false
+            try {
+                const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+                const res = await axios.get(`${API_BASE}/home/logo`)
+                this.logoUrl = res.data.imageUrl || res.data.logo || res.data
+            } catch (e) {
+                console.warn('Не удалось загрузить логотип:', e)
+                this.logoError = true
+            } finally {
+                this.logoLoading = false
+            }
+        },
+        async fetchLoginIcon() {
+            this.loginIconLoading = true
+            this.loginIconError = false
+            try {
+                const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+                const res = await axios.get(`${API_BASE}/home/login-icon`)
+                this.loginIconUrl = res.data.imageUrl || res.data.icon || res.data
+            } catch (e) {
+                console.warn('Не удалось загрузить иконку входа:', e)
+                this.loginIconError = true
+            } finally {
+                this.loginIconLoading = false
+            }
+        },
+        async fetchCartCount() {
+            if (!this.loggedIn) {
+                return
+            }
+            try {
+                const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+                const token = localStorage.getItem('authToken')
+                const res = await axios.get(`${API_BASE}/cart`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                const items = res.data.items || res.data || []
+                this.cartCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0)
+            } catch (e) {
+                console.warn('Не удалось загрузить корзину:', e)
+            }
+        },
+        handleLogoError() {
+            this.logoError = true
+            this.logoLoading = false
+        },
+        handleLoginIconError() {
+            this.loginIconError = true
+            this.loginIconLoading = false
+        },
+        
         loadUser() {
             const userData = localStorage.getItem('user')
-            if (userData) {
-                this.user = JSON.parse(userData)
-            }
+            if (userData) this.user = JSON.parse(userData)
         },
         toggleDropdown() {
             this.isDropdown = !this.isDropdown
@@ -98,192 +232,59 @@ export default {
         closeDropdown() {
             this.isDropdown = false
         },
+        ProfileOpener() {},
+        logout() {
+            this.isDropdown = false
+            localStorage.removeItem('authToken')
+            localStorage.removeItem('user')
+            window.location.href = '/'
+        },
+        handleInput() {
+            clearTimeout(this.searchTimer)
+            this.showResults = true
+            this.searchTimer = setTimeout(() => {
+                if (this.searchQuery.length >= 2) {
+                    this.fetchSearch()
+                } else {
+                    this.searchResults = []
+                }
+            }, 300)
+        },
+        async fetchSearch() {
+            try {
+                const encodedQuery = encodeURIComponent(this.searchQuery)
+                const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+                const res = await axios.get(`${API_BASE}/search?q=${encodedQuery}`)
+                this.searchResults = res.data
+            } catch (e) {
+                console.error('Ошибка поиска:', e)
+                this.searchResults = []
+            }
+        },
+        goTo(item) {
+            this.$router.push(item.route)
+            this.closeSearch()
+        },
+        navigateToFirst() {
+            if (this.searchResults.length > 0) {
+                this.goTo(this.searchResults[0])
+            }
+        },
+        closeSearch() {
+            this.showResults = false
+        },
         handleClickOutside(event) {
             if (this.$refs.avatarRef && !this.$refs.avatarRef.contains(event.target)) {
                 this.closeDropdown()
             }
-        },
-        logout() {
-            localStorage.removeItem('authToken')
-            localStorage.removeItem('user')
-            this.user = null
-            this.closeDropdown()
-            this.$router.push('/')
-        },
-        
+            if (this.$refs.searchContainer && !this.$refs.searchContainer.contains(event.target)) {
+                this.closeSearch()
+            }
+        }
     }
 }
 </script>
 
-<style scoped>
-.header {
-    width: 100%;
-    position: fixed;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: black;
-    box-shadow: 0 0px 30px var(--vintage-yellow);
-}
+<style scoped src="@/assets/styles/components/Header.css">
 
-.header__logo {
-    margin-block: 10px;
-    margin-right: 10px;
-    font-size: 20px;
-}
-
-.header__llink {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-} 
-
-.header__llink-img {
-    height: 60px;
-}
-
-.header__llink-text {
-    font-family: 'Dessau-Heavy', sans-serif;
-    color: rgb(223, 226, 6);
-    text-shadow: -2px 1px 0 rgb(230, 3, 3);
-}
-
-.header__nav{
-    margin-left: 40px;
-    display: flex;
-    gap: 50px;
-    font-family: 'Uncage', sans-serif;
-    color: gray;
-    font-size: 18px;
-}
-
-.header__search-container{
-    margin-left: 100px;
-}
-
-.header__login{
-    gap: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-left: 60px;
-    text-decoration: none;
-}
-
-.header__login-img{
-    height: 60px;
-}
-
-.header__login-text{
-    font-family: 'Uncage', sans-serif;
-    color: gray;
-    text-decoration: none;
-}
-
-/* 🔥 Добавьте эти стили в конец вашего <style> */
-
-.header__profile {
-    position: relative;
-    margin-left: 60px;
-}
-
-.header__avatar {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: var(--vintage-yellow, #f4d03f);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    border: 2px solid var(--blood-red, #8b0000);
-    position: relative;
-}
-
-.header__avatar-letter {
-    font-family: 'Uncage', sans-serif;
-    font-size: 20px;
-    color: black;
-    font-weight: bold;
-}
-
-.header__dropdown {
-    position: absolute;
-    top: 60px;
-    right: 0;
-    width: 280px;
-    background: rgba(10, 10, 10, 0.98);
-    border: 2px solid var(--vintage-yellow, #f4d03f);
-    border-radius: 10px;
-    padding: 15px;
-    z-index: 1001;
-}
-
-.dropdown__header {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    padding-bottom: 15px;
-}
-
-.dropdown__avatar-letter {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--vintage-yellow, #f4d03f);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Uncage', sans-serif;
-    font-size: 24px;
-    color: black;
-}
-
-.dropdown__user-info {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.dropdown__username {
-    font-family: 'Uncage', sans-serif;
-    color: white;
-    font-size: 16px;
-}
-
-.dropdown__email {
-    font-family: 'EkiR', sans-serif;
-    color: gray;
-    font-size: 12px;
-}
-
-.dropdown__divider {
-    height: 1px;
-    background: var(--blood-red, #8b0000);
-    margin: 10px 0;
-}
-
-.dropdown__link {
-    display: block;
-    padding: 12px 15px;
-    font-family: 'Uncage', sans-serif;
-    color: rgb(223, 223, 223);
-    text-decoration: none;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    text-align: left;
-}
-
-.dropdown__link:hover {
-    background: var(--blood-red, #8b0000);
-    color: white;
-}
-
-.dropdown__logout {
-    color: var(--blood-red, #8b0000);
-}
 </style>
