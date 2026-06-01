@@ -31,7 +31,7 @@
   </main>
 </template>
 
-<script>
+<script setup>
 import { useRouter } from 'vue-router'
 import { useCast } from '@/composables/useCast'
 import SkeletonCard from '@/components/SkeletonCard.vue'

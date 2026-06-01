@@ -60,7 +60,7 @@
           >
           <h2 class="card-name">{{ item.name }}</h2>
           
-          <div class="card-price">{{ item.price }} ₽</div>
+          <div class="card-price">{{ item.price }} br</div>
 
           <div class="actions-row">
             <div 
@@ -177,7 +177,9 @@ const loadProductStates = async () => {
   if (!auth.isAuthenticated || !auth.user?.id || !products.value?.length) return
   for (const item of products.value) {
     try {
-      const likeRes = await api.get(`/products/${item.id}/like/status`)
+      const likeRes = await api.get(`/products/${item.id}/like/status`, {
+  params: { user_id: auth.user.id }  // ← Добавь эту строку!
+})
       likesState.value[item.id] = likeRes.data.is_liked
       likesCount.value[item.id] = likeRes.data.is_liked ? (item.likes || 0) + 1 : (item.likes || 0)
       

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth' 
 import { createPinia } from 'pinia'
 import Home from '../views/Home.vue'
@@ -96,9 +96,8 @@ const routes = [
   }
 }
 ]
-
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(import.meta.env.BASE_URL), 
   routes,
   scrollBehavior(to, from, savedPosition) {
     return { top: 0, left: 0 }
