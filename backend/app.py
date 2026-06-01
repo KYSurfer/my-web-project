@@ -22,7 +22,7 @@ def create_app():
     app.config.from_object(Config)
     
     CORS(app, resources={
-        r"/api/*": {"origins": ["http://localhost:5173", "http://localhost:8000", "*"]},
+        r"/api/*": {"origins": ["https://kysurfer.github.io", "http://localhost:5173", "http://localhost:8000", "*"]},
         r"/static/*": {"origins": "*"}
     })
     
