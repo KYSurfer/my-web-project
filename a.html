@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bon's Burgers — ADMIN PANEL [RESTRICTED]</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Rubik+Glitch&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ==================== CSS VARIABLES - WALTEN FILES STYLE ==================== */
+:root {
+  --bon-blue: #4a7a8c;
+  --bon-blue-dark: #2d4a55;
+  --banny-purple: #7b4a8c;
+  --banny-purple-dark: #4a2d55;
+  --sha-cream: #f5e6d3;
+  --boozoo-red: #8b1a1a;
+  --vintage-yellow: #d4a84a;
+  --analog-green: #3d5c3d;
+  --static-gray: #6b6b6b;
+  --dark-bg: #0a0a0a;
+  --darker-bg: #050505;
+  --text-light: #e8e8e8;
+  --blood-red: #8b0000;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  --glow: 0 0 30px rgba(212, 168, 74, 0.4);
+  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'VT323', monospace;
+  background: var(--dark-bg);
+  color: var(--text-light);
+  line-height: 1.6;
+  overflow-x: hidden;
+  font-size: 18px;
+}
+
+/* ==================== CRT & VHS EFFECTS ==================== */
+.crt-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.95; }
+  50% { opacity: 1; }
+  100% { opacity: 0.96; }
+}
+
+.noise-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation: noiseShift 0.5s steps(5) infinite;
+}
+
+@keyframes noiseShift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-5%, -5%); }
+  50% { transform: translate(5%, 5%); }
+  75% { transform: translate(-5%, 5%); }
+}
+
+.vignette {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9997;
+  background: radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ==================== TYPOGRAPHY ==================== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'VT323', monospace;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.glitch-text {
+  font-family: 'Rubik Glitch', cursive;
+  animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+  0%, 90%, 100% { text-shadow: 0 0 0; }
+  92% { text-shadow: 3px 0 var(--blood-red), -3px 0 var(--bon-blue); }
+  94% { text-shadow: -3px 0 var(--blood-red), 3px 0 var(--bon-blue); }
+  96% { text-shadow: 3px 0 var(--blood-red), -3px 0 var(--bon-blue); }
+}
+
+/* ==================== ADMIN LAYOUT ==================== */
+.admin-wrapper {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==================== SIDEBAR ==================== */
+.sidebar {
+  width: 280px;
+  background: rgba(10, 10, 10, 0.95);
+  border-right: 3px solid var(--vintage-yellow);
+  padding: 24px;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  transition: var(--transition);
+  z-index: 100;
+}
+
+.sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 40px;
+  text-decoration: none;
+  color: var(--vintage-yellow);
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.9rem;
+}
+
+.sidebar__logo-icon {
+  width: 50px;
+  height: 50px;
+  background: var(--bon-blue);
+  border: 3px solid var(--vintage-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  animation: logoGlow 3s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+  0%, 100% { box-shadow: 0 0 15px var(--vintage-yellow); }
+  50% { box-shadow: 0 0 30px var(--vintage-yellow), 0 0 50px var(--bon-blue); }
+}
+
+.sidebar__logotype {
+  line-height: 1.3;
+}
+
+.sidebar__logotype span {
+  display: block;
+  font-size: 0.6rem;
+  color: var(--static-gray);
+  margin-top: 5px;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  color: var(--text-light);
+  text-decoration: none;
+  font-family: 'VT323', monospace;
+  font-size: 1.4rem;
+  border: 2px solid transparent;
+  transition: var(--transition);
+  position: relative;
+}
+
+.sidebar__link::before {
+  content: '► ';
+  opacity: 0;
+  transition: var(--transition);
+  color: var(--vintage-yellow);
+}
+
+.sidebar__link:hover,
+.sidebar__link.active {
+  color: var(--vintage-yellow);
+  border-color: var(--vintage-yellow);
+  background: rgba(212, 168, 74, 0.1);
+}
+
+.sidebar__link:hover::before,
+.sidebar__link.active::before {
+  opacity: 1;
+}
+
+.sidebar__link svg {
+  width: 20px;
+  height: 20px;
+  color: var(--vintage-yellow);
+}
+
+.sidebar__divider {
+  height: 2px;
+  background: var(--vintage-yellow);
+  margin: 20px 0;
+  opacity: 0.3;
+}
+
+.sidebar__label {
+  font-size: 1rem;
+  color: var(--static-gray);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  padding-left: 18px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+.main-content {
+  flex: 1;
+  margin-left: 280px;
+  padding: 40px;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding: 24px;
+  background: rgba(10, 10, 10, 0.8);
+  border: 3px solid var(--vintage-yellow);
+  box-shadow: 6px 6px 0 var(--blood-red);
+}
+
+.page-title {
+  font-family: 'Rubik Glitch', cursive;
+  font-size: 2.5rem;
+  color: var(--vintage-yellow);
+  text-shadow: 4px 4px 0 var(--blood-red);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7rem;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--vintage-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: var(--dark-bg);
+  border: 2px solid var(--blood-red);
+}
+
+/* ==================== STATS CARDS ==================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  padding: 28px;
+  background: rgba(10, 10, 10, 0.8);
+  border: 3px solid var(--bon-blue);
+  box-shadow: 6px 6px 0 var(--blood-red);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--vintage-yellow);
+}
+
+.stat-card:nth-child(2)::before { background: var(--boozoo-red); }
+.stat-card:nth-child(3)::before { background: var(--banny-purple); }
+.stat-card:nth-child(4)::before { background: var(--analog-green); }
+
+.stat-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--blood-red);
+}
+
+.stat-card__label {
+  font-size: 1.1rem;
+  color: var(--static-gray);
+  margin-bottom: 8px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.65rem;
+}
+
+.stat-card__value {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 2rem;
+  color: var(--vintage-yellow);
+}
+
+.stat-card__change {
+  font-size: 1rem;
+  color: var(--analog-green);
+  margin-top: 8px;
+}
+
+/* ==================== TABLE ==================== */
+.table-container {
+  background: rgba(10, 10, 10, 0.8);
+  border: 3px solid var(--bon-blue);
+  padding: 24px;
+  box-shadow: 6px 6px 0 var(--blood-red);
+  overflow-x: auto;
+  margin-bottom: 40px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.table-title {
+  font-family: 'Rubik Glitch', cursive;
+  font-size: 1.8rem;
+  color: var(--vintage-yellow);
+}
+
+.btn {
+  padding: 12px 30px;
+  background: var(--vintage-yellow);
+  color: var(--dark-bg);
+  border: 2px solid var(--bon-blue);
+  font-size: 1.2rem;
+  transition: var(--transition);
+  font-family: 'VT323', monospace;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 var(--blood-red);
+}
+
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--blood-red);
+}
+
+.btn-danger {
+  background: var(--boozoo-red);
+  color: var(--vintage-yellow);
+  border-color: var(--vintage-yellow);
+}
+
+.btn-danger:hover {
+  background: var(--blood-red);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 2px dashed var(--bon-blue);
+}
+
+th {
+  font-family: 'Press Start 2P', cursive;
+  color: var(--vintage-yellow);
+  font-weight: normal;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+td {
+  font-size: 1.2rem;
+  color: var(--text-light);
+}
+
+tr:hover {
+  background: rgba(212, 168, 74, 0.1);
+}
+
+.status {
+  padding: 6px 12px;
+  border: 2px solid;
+  font-size: 1rem;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+}
+
+.status--active {
+  background: rgba(61, 92, 61, 0.3);
+  color: var(--analog-green);
+  border-color: var(--analog-green);
+}
+
+.status--pending {
+  background: rgba(139, 26, 26, 0.3);
+  color: var(--boozoo-red);
+  border-color: var(--boozoo-red);
+}
+
+/* ==================== FORM ==================== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.form-card {
+  background: rgba(10, 10, 10, 0.8);
+  border: 3px solid var(--bon-blue);
+  padding: 28px;
+  box-shadow: 6px 6px 0 var(--blood-red);
+}
+
+.form-card__title {
+  font-family: 'Rubik Glitch', cursive;
+  font-size: 1.5rem;
+  color: var(--vintage-yellow);
+  margin-bottom: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--vintage-yellow);
+  font-size: 1.1rem;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--darker-bg);
+  border: 3px solid var(--bon-blue);
+  color: var(--text-light);
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  transition: var(--transition);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--vintage-yellow);
+  box-shadow: 0 0 15px rgba(212, 168, 74, 0.3);
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* ==================== MOBILE TOGGLE ==================== */
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 200;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  cursor: pointer;
+  background: var(--dark-bg);
+  border: 2px solid var(--vintage-yellow);
+}
+
+.menu-toggle span {
+  width: 25px;
+  height: 3px;
+  background: var(--vintage-yellow);
+  transition: var(--transition);
+}
+
+/* ==================== WARNING BANNER ==================== */
+.warning-banner {
+  background: var(--boozoo-red);
+  color: var(--vintage-yellow);
+  text-align: center;
+  padding: 10px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+  border-bottom: 2px solid var(--vintage-yellow);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+    padding: 80px 20px 40px;
+  }
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.active {
+    transform: translateX(0);
+  }
+  .menu-toggle {
+    display: flex;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  table {
+    font-size: 0.9rem;
+  }
+  th, td {
+    padding: 12px 8px;
+  }
+}
+</style>
+</head>
+<body>
+<!-- Analog Horror Effects -->
+<div class="crt-overlay"></div>
+<div class="noise-overlay"></div>
+<div class="vignette"></div>
+
+<!-- Warning Banner -->
+<div class="warning-banner">
+⚠ RESTRICTED ACCESS — BUNNY SMILES INC. ADMINISTRATION SYSTEM ⚠
+</div>
+
+<div id="app">
+  <div class="admin-wrapper">
+    <!-- Mobile Menu Toggle -->
+    <div class="menu-toggle" @click="sidebarOpen = !sidebarOpen">
+      <span></span><span></span><span></span>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" :class="{ active: sidebarOpen }">
+      <a href="/" class="sidebar__logo">
+        <div class="sidebar__logo-icon">
+          <i class="fas fa-carrot"></i>
+        </div>
+        <div class="sidebar__logotype">
+          ADMIN PANEL
+          <span>BSI © 1974</span>
+        </div>
+      </a>
+
+      <nav class="sidebar__nav">
+        <a href="/admin" class="sidebar__link active">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+          </svg>
+          DASHBOARD
+        </a>
+        <a href="/admin/orders" class="sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/>
+          </svg>
+          ORDERS
+        </a>
+        <a href="/admin/menu" class="sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
+          </svg>
+          MENU ITEMS
+        </a>
+        <a href="/admin/users" class="sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          USERS
+        </a>
+        
+        <div class="sidebar__divider"></div>
+        <div class="sidebar__label">CONTENT</div>
+        
+        <a href="/admin/news" class="sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+          </svg>
+          NEWS
+        </a>
+        <a href="/admin/pages" class="sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+          </svg>
+          PAGES
+        </a>
+        
+        <div class="sidebar__divider"></div>
+        
+        <a href="/admin/settings" class="sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+          </svg>
+          SETTINGS
+        </a>
+        <a href="/" class="sidebar__link">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          BACK TO SITE
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Page Header -->
+      <header class="page-header">
+        <h1 class="page-title glitch-text">■ ADMIN DASHBOARD</h1>
+        <div class="user-info">
+          <span>ADMIN</span>
+          <div class="user-avatar">A</div>
+        </div>
+      </header>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card__label">► ORDERS TODAY</div>
+          <div class="stat-card__value">24</div>
+          <div class="stat-card__change">▲ +12% VS YESTERDAY</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">► REVENUE</div>
+          <div class="stat-card__value">$845</div>
+          <div class="stat-card__change">▲ +8% VS YESTERDAY</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">► USERS</div>
+          <div class="stat-card__value">156</div>
+          <div class="stat-card__change">▲ +3 NEW</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">► PENDING</div>
+          <div class="stat-card__value">5</div>
+          <div class="stat-card__change">⚠ REQUIRES ATTENTION</div>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="table-container">
+        <div class="table-header">
+          <h2 class="table-title">► RECENT ORDERS</h2>
+          <button class="btn">
+            <i class="fas fa-plus"></i> VIEW ALL
+          </button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ORDER #</th>
+              <th>CUSTOMER</th>
+              <th>AMOUNT</th>
+              <th>STATUS</th>
+              <th>DATE</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#1234</td>
+              <td>IVAN PETROV</td>
+              <td>$8.50</td>
+              <td><span class="status status--active">READY</span></td>
+              <td>12.01.2026</td>
+              <td>
+                <button class="btn" style="padding: 6px 12px; font-size: 1rem;">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>#1233</td>
+              <td>ANNA SMIRNOVA</td>
+              <td>$12.00</td>
+              <td><span class="status status--pending">PROCESSING</span></td>
+              <td>12.01.2026</td>
+              <td>
+                <button class="btn" style="padding: 6px 12px; font-size: 1rem;">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>#1232</td>
+              <td>MAXIM KOZLOV</td>
+              <td>$6.50</td>
+              <td><span class="status status--active">DELIVERED</span></td>
+              <td>11.01.2026</td>
+              <td>
+                <button class="btn" style="padding: 6px 12px; font-size: 1rem;">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Quick Add Forms -->
+      <div class="form-grid">
+        <div class="form-card">
+          <h3 class="form-card__title glitch-text">► ADD MENU ITEM</h3>
+          <form>
+            <div class="form-group">
+              <label class="form-label">NAME</label>
+              <input type="text" class="form-input" placeholder="EX: BON BURGER">
+            </div>
+            <div class="form-group">
+              <label class="form-label">PRICE ($)</label>
+              <input type="number" class="form-input" placeholder="5.99">
+            </div>
+            <div class="form-group">
+              <label class="form-label">CATEGORY</label>
+              <select class="form-select">
+                <option>BURGERS</option>
+                <option>SIDES</option>
+                <option>DRINKS</option>
+                <option>KIDS MEAL</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">DESCRIPTION</label>
+              <textarea class="form-textarea" placeholder="ITEM DESCRIPTION..."></textarea>
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">
+              <i class="fas fa-save"></i> SAVE ITEM
+            </button>
+          </form>
+        </div>
+
+        <div class="form-card">
+          <h3 class="form-card__title glitch-text">► ADD NEWS</h3>
+          <form>
+            <div class="form-group">
+              <label class="form-label">HEADLINE</label>
+              <input type="text" class="form-input" placeholder="NEWS HEADLINE">
+            </div>
+            <div class="form-group">
+              <label class="form-label">CATEGORY</label>
+              <select class="form-select">
+                <option>PROMOTION</option>
+                <option>EVENT</option>
+                <option>UPDATE</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">CONTENT</label>
+              <textarea class="form-textarea" placeholder="NEWS CONTENT..."></textarea>
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">
+              <i class="fas fa-paper-plane"></i> PUBLISH
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const { createApp, ref } = Vue;
+
+createApp({
+  setup() {
+    const sidebarOpen = ref(false);
+
+    return {
+      sidebarOpen
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

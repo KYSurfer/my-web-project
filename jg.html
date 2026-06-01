@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bon's Burgers — Profile | Bunny Smiles Inc.</title>
+<!-- Vue 3 CDN -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!-- Google Fonts - Analog Horror Style -->
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Rubik+Glitch&display=swap" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ==================== CSS VARIABLES - WALTEN FILES THEME ==================== */
+:root {
+  --bon-blue: #4a7a8c;
+  --bon-blue-dark: #2d4a55;
+  --banny-purple: #7b4a8c;
+  --banny-purple-dark: #4a2d55;
+  --sha-cream: #f5e6d3;
+  --boozoo-red: #8b1a1a;
+  --vintage-yellow: #d4a84a;
+  --analog-green: #3d5c3d;
+  --static-gray: #6b6b6b;
+  --dark-bg: #0a0a0a;
+  --darker-bg: #050505;
+  --text-light: #e8e8e8;
+  --blood-red: #8b0000;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  --glow: 0 0 30px rgba(212, 168, 74, 0.4);
+  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'VT323', monospace;
+  background: var(--dark-bg);
+  color: var(--text-light);
+  line-height: 1.6;
+  overflow-x: hidden;
+  font-size: 18px;
+  min-height: 100vh;
+}
+
+/* ==================== CRT & VHS EFFECTS ==================== */
+.crt-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+  animation: flicker 0.15s infinite;
+}
+@keyframes flicker { 0% { opacity: 0.95; } 50% { opacity: 1; } 100% { opacity: 0.96; } }
+
+.noise-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation: noiseShift 0.5s steps(5) infinite;
+}
+@keyframes noiseShift { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-5%, -5%); } 50% { transform: translate(5%, 5%); } 75% { transform: translate(-5%, 5%); } }
+
+.vignette {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9997;
+  background: radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ==================== TYPOGRAPHY ==================== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'VT323', monospace;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.glitch-text {
+  font-family: 'Rubik Glitch', cursive;
+  animation: glitch 3s infinite;
+}
+@keyframes glitch {
+  0%, 90%, 100% { text-shadow: 0 0 0; }
+  92% { text-shadow: 3px 0 var(--blood-red), -3px 0 var(--bon-blue); }
+  94% { text-shadow: -3px 0 var(--blood-red), 3px 0 var(--bon-blue); }
+  96% { text-shadow: 3px 0 var(--blood-red), -3px 0 var(--bon-blue); }
+}
+
+/* ==================== WARNING BANNER ==================== */
+.warning-banner {
+  background: var(--blood-red);
+  color: var(--vintage-yellow);
+  text-align: center;
+  padding: 10px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+  border-bottom: 2px solid var(--vintage-yellow);
+}
+
+/* ==================== PROFILE LAYOUT ==================== */
+.profile-container {
+  min-height: 100vh;
+  padding: 100px 20px 50px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ==================== PROFILE HEADER ==================== */
+.profile-header {
+  background: rgba(10, 10, 10, 0.9);
+  border: 4px solid var(--vintage-yellow);
+  padding: 40px;
+  margin-bottom: 40px;
+  box-shadow: 10px 10px 0 var(--blood-red), 0 0 60px rgba(212, 168, 74, 0.3);
+  position: relative;
+}
+
+.profile-header::before {
+  content: '◆ BUNNY SMILES INC. ◆';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--boozoo-red);
+  color: var(--vintage-yellow);
+  padding: 8px 25px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+  white-space: nowrap;
+  border: 2px solid var(--vintage-yellow);
+}
+
+.profile-header-content {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 40px;
+  align-items: center;
+}
+
+.profile-avatar-container {
+  position: relative;
+}
+
+.profile-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 4px solid var(--vintage-yellow);
+  object-fit: cover;
+  background: var(--darker-bg);
+  animation: avatarGlow 3s ease-in-out infinite;
+}
+@keyframes avatarGlow {
+  0%, 100% { box-shadow: 0 0 15px var(--vintage-yellow); }
+  50% { box-shadow: 0 0 30px var(--vintage-yellow), 0 0 50px var(--bon-blue); }
+}
+
+.profile-avatar-edit {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 40px;
+  height: 40px;
+  background: var(--vintage-yellow);
+  color: var(--darker-bg);
+  border: 2px solid var(--blood-red);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.profile-avatar-edit:hover {
+  background: var(--blood-red);
+  color: var(--vintage-yellow);
+  transform: scale(1.1);
+}
+
+.profile-info h1 {
+  font-family: 'Rubik Glitch', cursive;
+  font-size: 3rem;
+  color: var(--vintage-yellow);
+  text-shadow: 4px 4px 0 var(--blood-red);
+  margin-bottom: 10px;
+}
+
+.profile-tag {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7rem;
+  color: var(--bon-blue);
+  margin-bottom: 15px;
+  display: inline-block;
+  padding: 5px 15px;
+  background: rgba(74, 122, 140, 0.2);
+  border: 2px solid var(--bon-blue);
+}
+
+.profile-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.profile-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--static-gray);
+  font-size: 1.1rem;
+}
+.profile-meta-item i { color: var(--vintage-yellow); }
+
+.profile-stats {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 15px 25px;
+  background: rgba(212, 168, 74, 0.08);
+  border: 2px solid var(--vintage-yellow);
+  min-width: 120px;
+}
+
+.stat-box-number {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 1.3rem;
+  color: var(--vintage-yellow);
+  margin-bottom: 5px;
+}
+
+.stat-box-label {
+  color: var(--static-gray);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.btn {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: 'VT323', monospace;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-primary {
+  background: var(--vintage-yellow);
+  color: var(--darker-bg);
+  border: 3px solid var(--vintage-yellow);
+  box-shadow: 6px 6px 0 var(--blood-red);
+}
+.btn-primary:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--blood-red);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--vintage-yellow);
+  border: 3px solid var(--vintage-yellow);
+  box-shadow: 6px 6px 0 var(--bon-blue);
+}
+.btn-secondary:hover {
+  background: var(--vintage-yellow);
+  color: var(--darker-bg);
+}
+
+.btn-danger {
+  background: var(--boozoo-red);
+  color: var(--vintage-yellow);
+  border: 3px solid var(--blood-red);
+  box-shadow: 6px 6px 0 var(--vintage-yellow);
+}
+.btn-danger:hover {
+  background: var(--blood-red);
+}
+
+/* ==================== PROFILE NAVIGATION ==================== */
+.profile-nav {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  border-bottom: 3px solid var(--bon-blue);
+  padding-bottom: 20px;
+}
+
+.nav-tab {
+  padding: 12px 25px;
+  background: transparent;
+  border: 2px solid var(--bon-blue);
+  color: var(--static-gray);
+  font-size: 1.2rem;
+  font-family: 'VT323', monospace;
+  cursor: pointer;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.nav-tab:hover {
+  border-color: var(--vintage-yellow);
+  color: var(--vintage-yellow);
+}
+
+.nav-tab.active {
+  background: var(--vintage-yellow);
+  color: var(--darker-bg);
+  border-color: var(--vintage-yellow);
+  box-shadow: 4px 4px 0 var(--blood-red);
+}
+
+.nav-tab i { margin-right: 8px; }
+
+/* ==================== PROFILE CONTENT ==================== */
+.profile-content {
+  background: rgba(10, 10, 10, 0.8);
+  border: 3px solid var(--bon-blue);
+  padding: 40px;
+  box-shadow: 8px 8px 0 var(--blood-red);
+  min-height: 400px;
+}
+
+.content-section {
+  display: none;
+}
+.content-section.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-title {
+  font-family: 'Rubik Glitch', cursive;
+  font-size: 2rem;
+  color: var(--vintage-yellow);
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px dashed var(--bon-blue);
+}
+
+/* ==================== POSTS GRID ==================== */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.post-card {
+  background: var(--darker-bg);
+  border: 3px solid var(--bon-blue);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.post-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--vintage-yellow);
+  box-shadow: 0 15px 40px rgba(212, 168, 74, 0.2);
+}
+
+.post-image {
+  height: 200px;
+  overflow: hidden;
+  background: var(--darker-bg);
+}
+.post-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+}
+.post-card:hover .post-image img { transform: scale(1.1); }
+
+.post-content {
+  padding: 20px;
+}
+
+.post-title {
+  font-family: 'Rubik Glitch', cursive;
+  font-size: 1.3rem;
+  color: var(--vintage-yellow);
+  margin-bottom: 10px;
+}
+
+.post-description {
+  color: var(--static-gray);
+  font-size: 1rem;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  border-top: 1px dashed var(--static-gray);
+  color: var(--static-gray);
+  font-size: 0.95rem;
+}
+
+.post-actions {
+  display: flex;
+  gap: 10px;
+}
+.post-action-btn {
+  background: none;
+  border: none;
+  color: var(--static-gray);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1rem;
+}
+.post-action-btn:hover { color: var(--vintage-yellow); }
+.post-action-btn.delete:hover { color: var(--blood-red); }
+
+/* ==================== RATINGS LIST ==================== */
+.ratings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rating-card {
+  background: var(--darker-bg);
+  border: 3px solid var(--bon-blue);
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  transition: var(--transition);
+}
+.rating-card:hover {
+  border-color: var(--vintage-yellow);
+  transform: translateX(5px);
+}
+
+.rating-item-image {
+  width: 80px;
+  height: 80px;
+  border: 2px solid var(--vintage-yellow);
+  flex-shrink: 0;
+  background: var(--darker-bg);
+}
+.rating-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rating-item-details {
+  flex: 1;
+}
+
+.rating-item-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7rem;
+  color: var(--vintage-yellow);
+  margin-bottom: 8px;
+}
+
+.rating-stars {
+  color: var(--vintage-yellow);
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+.rating-item-comment {
+  color: var(--static-gray);
+  font-size: 1rem;
+  font-style: italic;
+}
+
+.rating-item-date {
+  color: var(--static-gray);
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* ==================== SAVED ITEMS ==================== */
+.saved-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.saved-card {
+  background: var(--darker-bg);
+  border: 3px solid var(--bon-blue);
+  overflow: hidden;
+  transition: var(--transition);
+  position: relative;
+}
+.saved-card:hover {
+  border-color: var(--vintage-yellow);
+  transform: translateY(-5px);
+}
+
+.saved-card-image {
+  height: 180px;
+  overflow: hidden;
+}
+.saved-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+}
+.saved-card:hover .saved-card-image img { transform: scale(1.1); }
+
+.saved-card-content {
+  padding: 15px;
+}
+
+.saved-card-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7rem;
+  color: var(--vintage-yellow);
+  margin-bottom: 10px;
+}
+
+.saved-card-price {
+  color: var(--blood-red);
+  font-size: 1.2rem;
+  font-family: 'VT323', monospace;
+}
+
+.saved-card-remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 35px;
+  height: 35px;
+  background: var(--boozoo-red);
+  color: var(--vintage-yellow);
+  border: 2px solid var(--vintage-yellow);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.saved-card-remove:hover {
+  background: var(--blood-red);
+  transform: scale(1.1);
+}
+
+/* ==================== SETTINGS FORM ==================== */
+.settings-form {
+  max-width: 700px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-label {
+  display: block;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7rem;
+  color: var(--vintage-yellow);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 15px 18px;
+  background: var(--darker-bg);
+  border: 3px solid var(--bon-blue);
+  color: var(--text-light);
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  transition: var(--transition);
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--vintage-yellow);
+  box-shadow: 0 0 15px rgba(212, 168, 74, 0.3);
+}
+.form-textarea { min-height: 120px; resize: vertical; }
+
+.form-hint {
+  color: var(--static-gray);
+  font-size: 0.95rem;
+  margin-top: 8px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* ==================== NOTIFICATIONS ==================== */
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.notification-card {
+  background: var(--darker-bg);
+  border: 2px solid var(--bon-blue);
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  transition: var(--transition);
+  position: relative;
+}
+.notification-card:hover {
+  border-color: var(--vintage-yellow);
+}
+.notification-card.unread {
+  border-left: 4px solid var(--vintage-yellow);
+  background: rgba(212, 168, 74, 0.05);
+}
+
+.notification-icon {
+  width: 45px;
+  height: 45px;
+  background: var(--bon-blue);
+  border: 2px solid var(--vintage-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--vintage-yellow);
+  flex-shrink: 0;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7rem;
+  color: var(--vintage-yellow);
+  margin-bottom: 5px;
+}
+
+.notification-message {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.notification-time {
+  color: var(--static-gray);
+  font-size: 0.9rem;
+}
+
+.notification-mark-read {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: 2px solid var(--vintage-yellow);
+  color: var(--vintage-yellow);
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.notification-mark-read:hover {
+  background: var(--vintage-yellow);
+  color: var(--darker-bg);
+}
+
+/* ==================== EMPTY STATE ==================== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--static-gray);
+}
+.empty-state-icon {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  opacity: 0.3;
+  color: var(--vintage-yellow);
+}
+.empty-state-title {
+  font-family: 'Rubik Glitch', cursive;
+  font-size: 1.8rem;
+  color: var(--vintage-yellow);
+  margin-bottom: 15px;
+}
+.empty-state-text {
+  font-size: 1.2rem;
+  margin-bottom: 25px;
+}
+
+/* ==================== TOAST ==================== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--bon-blue-dark);
+  color: var(--vintage-yellow);
+  padding: 15px 25px;
+  border: 2px solid var(--vintage-yellow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 3000;
+  transform: translateX(150%);
+  transition: var(--transition);
+  font-size: 1.2rem;
+  box-shadow: 5px 5px 0 var(--blood-red);
+}
+.toast.show { transform: translateX(0); }
+.toast-icon { color: var(--vintage-yellow); font-size: 1.3rem; }
+.toast.error { background: var(--boozoo-red); }
+
+/* ==================== PREFERENCES ==================== */
+.preferences-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.preference-item {
+  padding: 15px;
+  background: var(--darker-bg);
+  border: 2px solid var(--bon-blue);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1rem;
+}
+.preference-item:hover {
+  border-color: var(--vintage-yellow);
+  transform: translateY(-3px);
+}
+.preference-item.selected {
+  background: rgba(212, 168, 74, 0.2);
+  border-color: var(--vintage-yellow);
+  color: var(--vintage-yellow);
+}
+.preference-icon {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+  .profile-header-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .profile-avatar-container {
+    margin: 0 auto;
+  }
+  .profile-info {
+    order: 2;
+  }
+  .profile-actions {
+    order: 3;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .profile-stats {
+    justify-content: center;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    padding: 30px 20px;
+  }
+  .profile-info h1 {
+    font-size: 2rem;
+  }
+  .profile-content {
+    padding: 25px;
+  }
+  .nav-tab {
+    padding: 10px 15px;
+    font-size: 1rem;
+  }
+  .profile-stats {
+    gap: 15px;
+  }
+  .stat-box {
+    min-width: 90px;
+    padding: 12px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 80px 10px 30px;
+  }
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+  }
+  .profile-actions {
+    flex-direction: column;
+  }
+  .btn {
+    width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+<!-- Analog Horror Effects -->
+<div class="crt-overlay"></div>
+<div class="noise-overlay"></div>
+<div class="vignette"></div>
+
+<div id="app">
+  <!-- Warning Banner -->
+  <div class="warning-banner">
+    ⚠ BUNNY SMILES INC. — USER PROFILE SYSTEM ⚠
+  </div>
+
+  <!-- Profile Container -->
+  <div class="profile-container">
+    
+    <!-- Profile Header -->
+    <header class="profile-header">
+      <div class="profile-header-content">
+        <!-- Avatar -->
+        <div class="profile-avatar-container">
+          <img :src="profile.avatar" :alt="profile.name" class="profile-avatar">
+          <div class="profile-avatar-edit" v-if="isOwner" @click="editAvatar" title="Change Avatar">
+            <i class="fas fa-camera"></i>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="profile-info">
+          <h1 class="glitch-text">{{ profile.name }}</h1>
+          <div class="profile-tag">@{{ profile.username }}</div>
+          <div class="profile-meta">
+            <div class="profile-meta-item">
+              <i class="fas fa-calendar"></i>
+              <span>Joined {{ profile.joinDate }}</span>
+            </div>
+            <div class="profile-meta-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>{{ profile.location }}</span>
+            </div>
+            <div class="profile-meta-item">
+              <i class="fas fa-utensils"></i>
+              <span>{{ profile.favoriteFood }}</span>
+            </div>
+          </div>
+          <div class="profile-stats">
+            <div class="stat-box">
+              <div class="stat-box-number">{{ profile.stats.posts }}</div>
+              <div class="stat-box-label">Posts</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box-number">{{ profile.stats.ratings }}</div>
+              <div class="stat-box-label">Ratings</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box-number">{{ profile.stats.saved }}</div>
+              <div class="stat-box-label">Saved</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box-number">{{ profile.stats.followers }}</div>
+              <div class="stat-box-label">Followers</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="profile-actions">
+          <button class="btn btn-primary" v-if="isOwner" @click="activeTab = 'settings'">
+            <i class="fas fa-cog"></i> Edit Profile
+          </button>
+          <button class="btn btn-secondary" v-if="!isOwner">
+            <i class="fas fa-user-plus"></i> Follow
+          </button>
+          <a href="/" class="btn btn-secondary">
+            <i class="fas fa-home"></i> Back to Site
+          </a>
+          <button class="btn btn-danger" v-if="isOwner" @click="logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="profile-nav">
+      <button class="nav-tab" :class="{ active: activeTab === 'posts' }" @click="activeTab = 'posts'">
+        <i class="fas fa-newspaper"></i> Posts
+      </button>
+      <button class="nav-tab" :class="{ active: activeTab === 'ratings' }" @click="activeTab = 'ratings'">
+        <i class="fas fa-star"></i> Ratings
+      </button>
+      <button class="nav-tab" :class="{ active: activeTab === 'saved' }" @click="activeTab = 'saved'" v-if="isOwner">
+        <i class="fas fa-bookmark"></i> Saved
+      </button>
+      <button class="nav-tab" :class="{ active: activeTab === 'preferences' }" @click="activeTab = 'preferences'" v-if="isOwner">
+        <i class="fas fa-heart"></i> Preferences
+      </button>
+      <button class="nav-tab" :class="{ active: activeTab === 'notifications' }" @click="activeTab = 'notifications'" v-if="isOwner">
+        <i class="fas fa-bell"></i> Notifications
+        <span v-if="unreadCount > 0" style="background: var(--blood-red); color: var(--vintage-yellow); padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-left: 5px;">{{ unreadCount }}</span>
+      </button>
+      <button class="nav-tab" :class="{ active: activeTab === 'settings' }" @click="activeTab = 'settings'" v-if="isOwner">
+        <i class="fas fa-cog"></i> Settings
+      </button>
+    </nav>
+
+    <!-- Content Area -->
+    <div class="profile-content">
+      
+      <!-- POSTS SECTION -->
+      <div class="content-section" :class="{ active: activeTab === 'posts' }">
+        <h2 class="section-title"><i class="fas fa-newspaper"></i> User Posts</h2>
+        
+        <div v-if="posts.length > 0" class="posts-grid">
+          <div class="post-card" v-for="post in posts" :key="post.id">
+            <div class="post-image">
+              <img :src="post.image" :alt="post.title">
+            </div>
+            <div class="post-content">
+              <h3 class="post-title">{{ post.title }}</h3>
+              <p class="post-description">{{ post.description }}</p>
+              <div class="post-meta">
+                <span><i class="fas fa-calendar"></i> {{ post.date }}</span>
+                <div class="post-actions" v-if="isOwner">
+                  <button class="post-action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                  <button class="post-action-btn delete" @click="deletePost(post.id)" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="empty-state">
+          <div class="empty-state-icon"><i class="fas fa-newspaper"></i></div>
+          <h3 class="empty-state-title">No Posts Yet</h3>
+          <p class="empty-state-text">{{ isOwner ? 'Start sharing your experience!' : 'This user hasn\'t posted anything yet.' }}</p>
+          <button class="btn btn-primary" v-if="isOwner" @click="activeTab = 'settings'">
+            <i class="fas fa-plus"></i> Create First Post
+          </button>
+        </div>
+      </div>
+
+      <!-- RATINGS SECTION -->
+      <div class="content-section" :class="{ active: activeTab === 'ratings' }">
+        <h2 class="section-title"><i class="fas fa-star"></i> User Ratings</h2>
+        
+        <div v-if="ratings.length > 0" class="ratings-list">
+          <div class="rating-card" v-for="rating in ratings" :key="rating.id">
+            <div class="rating-item-image">
+              <img :src="rating.image" :alt="rating.item">
+            </div>
+            <div class="rating-item-details">
+              <div class="rating-item-title">{{ rating.item }}</div>
+              <div class="rating-stars">
+                <i class="fas fa-star" v-for="n in 5" :key="n" :style="{ opacity: n <= rating.stars ? 1 : 0.3 }"></i>
+              </div>
+              <p class="rating-item-comment" v-if="rating.comment">"{{ rating.comment }}"</p>
+              <div class="rating-item-date"><i class="fas fa-calendar"></i> {{ rating.date }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="empty-state">
+          <div class="empty-state-icon"><i class="fas fa-star"></i></div>
+          <h3 class="empty-state-title">No Ratings Yet</h3>
+          <p class="empty-state-text">{{ isOwner ? 'Rate your favorite items!' : 'This user hasn\'t rated anything yet.' }}</p>
+          <a href="/menu" class="btn btn-primary" v-if="isOwner">
+            <i class="fas fa-utensils"></i> Browse Menu
+          </a>
+        </div>
+      </div>
+
+      <!-- SAVED SECTION (Owner Only) -->
+      <div class="content-section" :class="{ active: activeTab === 'saved' }" v-if="isOwner">
+        <h2 class="section-title"><i class="fas fa-bookmark"></i> Saved Items</h2>
+        
+        <div v-if="savedItems.length > 0" class="saved-grid">
+          <div class="saved-card" v-for="item in savedItems" :key="item.id">
+            <button class="saved-card-remove" @click="removeSaved(item.id)" title="Remove">
+              <i class="fas fa-times"></i>
+            </button>
+            <div class="saved-card-image">
+              <img :src="item.image" :alt="item.name">
+            </div>
+            <div class="saved-card-content">
+              <div class="saved-card-title">{{ item.name }}</div>
+              <div class="saved-card-price">${{ item.price }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="empty-state">
+          <div class="empty-state-icon"><i class="fas fa-bookmark"></i></div>
+          <h3 class="empty-state-title">No Saved Items</h3>
+          <p class="empty-state-text">Save items from the menu to access them quickly!</p>
+          <a href="/menu" class="btn btn-primary">
+            <i class="fas fa-utensils"></i> Browse Menu
+          </a>
+        </div>
+      </div>
+
+      <!-- PREFERENCES SECTION (Owner Only) -->
+      <div class="content-section" :class="{ active: activeTab === 'preferences' }" v-if="isOwner">
+        <h2 class="section-title"><i class="fas fa-heart"></i> Food Preferences</h2>
+        
+        <div class="form-group">
+          <label class="form-label">► FAVORITE CUISINES</label>
+          <div class="preferences-grid">
+            <div class="preference-item" :class="{ selected: preferences.cuisines.includes('burgers') }" @click="toggleCuisine('burgers')">
+              <span class="preference-icon">🍔</span> BURGERS
+            </div>
+            <div class="preference-item" :class="{ selected: preferences.cuisines.includes('pizza') }" @click="toggleCuisine('pizza')">
+              <span class="preference-icon">🍕</span> PIZZA
+            </div>
+            <div class="preference-item" :class="{ selected: preferences.cuisines.includes('asian') }" @click="toggleCuisine('asian')">
+              <span class="preference-icon">🍜</span> ASIAN
+            </div>
+            <div class="preference-item" :class="{ selected: preferences.cuisines.includes('mexican') }" @click="toggleCuisine('mexican')">
+              <span class="preference-icon">🌮</span> MEXICAN
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">► DIETARY RESTRICTIONS</label>
+          <div class="preferences-grid">
+            <div class="preference-item" :class="{ selected: preferences.restrictions.includes('nuts') }" @click="toggleRestriction('nuts')">
+              <span class="preference-icon">🥜</span> NUTS
+            </div>
+            <div class="preference-item" :class="{ selected: preferences.restrictions.includes('gluten') }" @click="toggleRestriction('gluten')">
+              <span class="preference-icon">🌾</span> GLUTEN
+            </div>
+            <div class="preference-item" :class="{ selected: preferences.restrictions.includes('dairy') }" @click="toggleRestriction('dairy')">
+              <span class="preference-icon">🥛</span> DAIRY
+            </div>
+            <div class="preference-item" :class="{ selected: preferences.restrictions.includes('vegan') }" @click="toggleRestriction('vegan')">
+              <span class="preference-icon">🌱</span> VEGAN
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" @click="savePreferences">
+          <i class="fas fa-save"></i> Save Preferences
+        </button>
+      </div>
+
+      <!-- NOTIFICATIONS SECTION (Owner Only) -->
+      <div class="content-section" :class="{ active: activeTab === 'notifications' }" v-if="isOwner">
+        <h2 class="section-title"><i class="fas fa-bell"></i> Notifications</h2>
+        
+        <div v-if="notifications.length > 0" class="notifications-list">
+          <div class="notification-card" :class="{ unread: !notif.read }" v-for="notif in notifications" :key="notif.id">
+            <div class="notification-icon">
+              <i :class="notif.icon"></i>
+            </div>
+            <div class="notification-content">
+              <div class="notification-title">{{ notif.title }}</div>
+              <div class="notification-message">{{ notif.message }}</div>
+              <div class="notification-time">{{ notif.time }}</div>
+            </div>
+            <button class="notification-mark-read" v-if="!notif.read" @click="markAsRead(notif.id)">
+              Mark Read
+            </button>
+          </div>
+        </div>
+
+        <div v-else class="empty-state">
+          <div class="empty-state-icon"><i class="fas fa-bell"></i></div>
+          <h3 class="empty-state-title">No Notifications</h3>
+          <p class="empty-state-text">You're all caught up!</p>
+        </div>
+
+        <div v-if="notifications.length > 0" style="margin-top: 20px; text-align: right;">
+          <button class="btn btn-secondary" @click="markAllAsRead">
+            <i class="fas fa-check-double"></i> Mark All as Read
+          </button>
+        </div>
+      </div>
+
+      <!-- SETTINGS SECTION (Owner Only) -->
+      <div class="content-section" :class="{ active: activeTab === 'settings' }" v-if="isOwner">
+        <h2 class="section-title"><i class="fas fa-cog"></i> Profile Settings</h2>
+        
+        <form class="settings-form" @submit.prevent="saveSettings">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">► DISPLAY NAME</label>
+              <input type="text" class="form-input" v-model="settings.name" placeholder="Your Name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">► @USERNAME</label>
+              <input type="text" class="form-input" v-model="settings.username" placeholder="@username" required>
+              <div class="form-hint">Letters, numbers, underscore only</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">► EMAIL</label>
+            <input type="email" class="form-input" v-model="settings.email" placeholder="your@email.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">► LOCATION</label>
+            <input type="text" class="form-input" v-model="settings.location" placeholder="City, Country">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">► BIO</label>
+            <textarea class="form-textarea" v-model="settings.bio" placeholder="Tell us about yourself..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">► NEW PASSWORD</label>
+              <input type="password" class="form-input" v-model="settings.newPassword" placeholder="Leave blank to keep current">
+            </div>
+            <div class="form-group">
+              <label class="form-label">► CONFIRM PASSWORD</label>
+              <input type="password" class="form-input" v-model="settings.confirmPassword" placeholder="Confirm new password">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+            <button type="button" class="btn btn-danger" @click="deleteAccount">
+              <i class="fas fa-trash"></i> Delete Account
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" :class="{ show: toast.show, error: toast.type === 'error' }">
+    <i class="toast-icon" :class="toast.icon"></i>
+    <span>{{ toast.message }}</span>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, computed, onMounted } = Vue;
+
+createApp({
+  setup() {
+    // ==================== STATE ====================
+    const activeTab = ref('posts');
+    const isOwner = ref(false); // Change to true to test owner view
+    const toast = ref({ show: false, message: '', type: 'success', icon: 'fas fa-check-circle' });
+    
+    // Profile Data (from API in real app)
+    const profile = ref({
+      id: 1,
+      name: 'Bon Fan 1974',
+      username: 'bonlover',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop',
+      joinDate: 'June 28, 2024',
+      location: 'Brighton, Wisconsin',
+      favoriteFood: 'The Bon Burger',
+      stats: {
+        posts: 12,
+        ratings: 28,
+        saved: 15,
+        followers: 156
+      }
+    });
+
+    // Settings Form
+    const settings = ref({
+      name: profile.value.name,
+      username: profile.value.username,
+      email: 'bonlover@example.com',
+      location: profile.value.location,
+      bio: 'Love Bon\'s Burgers since 1974! 🍔',
+      newPassword: '',
+      confirmPassword: ''
+    });
+
+    // Preferences
+    const preferences = ref({
+      cuisines: ['burgers'],
+      restrictions: []
+    });
+
+    // Posts Data
+    const posts = ref([
+      { id: 1, title: 'Best Burger in Town!', description: 'Just tried The Bon Burger and it\'s amazing!', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop', date: 'Jan 15, 2026' },
+      { id: 2, title: 'Showstoppers Performance', description: 'The animatronic show was incredible tonight!', image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400&h=300&fit=crop', date: 'Jan 10, 2026' },
+      { id: 3, title: 'Family Dinner', description: 'Great experience with the kids. They loved Boozoo!', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop', date: 'Jan 5, 2026' }
+    ]);
+
+    // Ratings Data
+    const ratings = ref([
+      { id: 1, item: 'The Bon Burger', stars: 5, comment: 'Absolute perfection!', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=100&h=100&fit=crop', date: 'Jan 15, 2026' },
+      { id: 2, item: 'Showstopper Deluxe', stars: 4, comment: 'Very good, but a bit messy', image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=100&h=100&fit=crop', date: 'Jan 12, 2026' },
+      { id: 3, item: 'Sha\'s Fries', stars: 5, comment: 'Crispy and delicious!', image: 'https://images.unsplash.com/photo-1573080496987-a199f8cd75ec?w=100&h=100&fit=crop', date: 'Jan 8, 2026' }
+    ]);
+
+    // Saved Items (Owner Only)
+    const savedItems = ref([
+      { id: 1, name: 'The Bon Burger', price: 5.99, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&h=200&fit=crop' },
+      { id: 2, name: 'Showstopper Shake', price: 3.99, image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=300&h=200&fit=crop' },
+      { id: 3, name: 'Boozoo\'s Rings', price: 3.49, image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=300&h=200&fit=crop' }
+    ]);
+
+    // Notifications (Owner Only)
+    const notifications = ref([
+      { id: 1, title: 'New Follower', message: 'bonny_fan started following you', icon: 'fas fa-user-plus', time: '2 hours ago', read: false },
+      { id: 2, title: 'Order Ready', message: 'Your order #1234 is ready for pickup', icon: 'fas fa-check-circle', time: '5 hours ago', read: false },
+      { id: 3, title: 'Special Offer', message: '20% off on your next order!', icon: 'fas fa-tag', time: '1 day ago', read: true }
+    ]);
+
+    // ==================== COMPUTED ====================
+    const unreadCount = computed(() => {
+      return notifications.value.filter(n => !n.read).length;
+    });
+
+    // ==================== METHODS ====================
+    const showToast = (message, type = 'success') => {
+      const icons = { success: 'fas fa-check-circle', error: 'fas fa-exclamation-triangle', info: 'fas fa-info-circle' };
+      toast.value = { show: true, message, type, icon: icons[type] };
+      setTimeout(() => { toast.value.show = false; }, 3000);
+    };
+
+    const deletePost = (postId) => {
+      if (confirm('Are you sure you want to delete this post?')) {
+        posts.value = posts.value.filter(p => p.id !== postId);
+        profile.value.stats.posts--;
+        showToast('Post deleted!', 'success');
+      }
+    };
+
+    const removeSaved = (itemId) => {
+      savedItems.value = savedItems.value.filter(i => i.id !== itemId);
+      profile.value.stats.saved--;
+      showToast('Item removed from saved!', 'success');
+    };
+
+    const toggleCuisine = (cuisine) => {
+      const idx = preferences.value.cuisines.indexOf(cuisine);
+      if (idx > -1) preferences.value.cuisines.splice(idx, 1);
+      else preferences.value.cuisines.push(cuisine);
+    };
+
+    const toggleRestriction = (restriction) => {
+      const idx = preferences.value.restrictions.indexOf(restriction);
+      if (idx > -1) preferences.value.restrictions.splice(idx, 1);
+      else preferences.value.restrictions.push(restriction);
+    };
+
+    const savePreferences = () => {
+      // API call in real app
+      showToast('Preferences saved!', 'success');
+    };
+
+    const markAsRead = (notifId) => {
+      const notif = notifications.value.find(n => n.id === notifId);
+      if (notif) notif.read = true;
+      showToast('Notification marked as read', 'success');
+    };
+
+    const markAllAsRead = () => {
+      notifications.value.forEach(n => n.read = true);
+      showToast('All notifications marked as read', 'success');
+    };
+
+    const saveSettings = () => {
+      if (settings.value.newPassword && settings.value.newPassword !== settings.value.confirmPassword) {
+        showToast('Passwords do not match!', 'error');
+        return;
+      }
+      // API call in real app
+      profile.value.name = settings.value.name;
+      profile.value.username = settings.value.username;
+      profile.value.location = settings.value.location;
+      showToast('Settings saved successfully!', 'success');
+    };
+
+    const deleteAccount = () => {
+      if (confirm('Are you sure? This action cannot be undone!')) {
+        if (confirm('Really delete your account?')) {
+          showToast('Account deletion requested. Check your email.', 'info');
+          // API call in real app
+        }
+      }
+    };
+
+    const editAvatar = () => {
+      showToast('Avatar upload feature coming soon!', 'info');
+    };
+
+    const logout = () => {
+      if (confirm('Are you sure you want to logout?')) {
+        // Clear auth token in real app
+        showToast('Logged out successfully!', 'success');
+        setTimeout(() => { window.location.href = '/'; }, 1500);
+      }
+    };
+
+    // ==================== LIFECYCLE ====================
+    onMounted(() => {
+      // Check if current user is profile owner
+      // In real app: compare profile.id with current user id from auth store
+      const currentUserId = localStorage.getItem('userId');
+      isOwner.value = currentUserId == profile.value.id;
+      
+      // Demo mode: set to true to test owner features
+      // isOwner.value = true;
+      
+      showToast('Profile loaded!', 'success');
+    });
+
+    return {
+      activeTab,
+      isOwner,
+      toast,
+      profile,
+      settings,
+      preferences,
+      posts,
+      ratings,
+      savedItems,
+      notifications,
+      unreadCount,
+      showToast,
+      deletePost,
+      removeSaved,
+      toggleCuisine,
+      toggleRestriction,
+      savePreferences,
+      markAsRead,
+      markAllAsRead,
+      saveSettings,
+      deleteAccount,
+      editAvatar,
+      logout
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

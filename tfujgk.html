@@ -1,0 +1,2442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bon's Burgers — Brighton, Wisconsin | Est. 1974 | Bunny Smiles Inc.</title>
+<!-- Vue 3 CDN -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!-- Google Fonts - Analog Horror Style -->
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Creepster&family=Rubik+Glitch&display=swap" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ==================== CSS VARIABLES - AUTHENTIC WALTEN FILES THEME ==================== */
+:root {
+--bon-blue: #4a7a8c;
+--bon-blue-dark: #2d4a55;
+--banny-purple: #7b4a8c;
+--banny-purple-dark: #4a2d55;
+--sha-cream: #f5e6d3;
+--boozoo-red: #8b1a1a;
+--vintage-yellow: #d4a84a;
+--analog-green: #3d5c3d;
+--static-gray: #6b6b6b;
+--dark-bg: #0a0a0a;
+--darker-bg: #050505;
+--text-light: #e8e8e8;
+--blood-red: #8b0000;
+--shadow: 0 8px 32px rgba(0,0,0,0.5);
+--glow: 0 0 30px rgba(212, 168, 74, 0.4);
+--transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* ==================== RESET & BASE ==================== */
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+html {
+scroll-behavior: smooth;
+}
+body {
+font-family: 'VT323', monospace;
+background: var(--dark-bg);
+color: var(--text-light);
+line-height: 1.6;
+overflow-x: hidden;
+font-size: 18px;
+}
+/* ==================== CRT SCANLINE EFFECT ==================== */
+.crt-overlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+pointer-events: none;
+z-index: 9999;
+background: repeating-linear-gradient(
+0deg,
+rgba(0, 0, 0, 0.15),
+rgba(0, 0, 0, 0.15) 1px,
+transparent 1px,
+transparent 2px
+);
+animation: flicker 0.15s infinite;
+}
+@keyframes flicker {
+0% { opacity: 0.95; }
+50% { opacity: 1; }
+100% { opacity: 0.96; }
+}
+/* ==================== VHS NOISE ==================== */
+.noise-overlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+pointer-events: none;
+z-index: 9998;
+opacity: 0.04;
+background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+animation: noiseShift 0.5s steps(5) infinite;
+}
+@keyframes noiseShift {
+0%, 100% { transform: translate(0, 0); }
+25% { transform: translate(-5%, -5%); }
+50% { transform: translate(5%, 5%); }
+75% { transform: translate(-5%, 5%); }
+}
+/* ==================== VIGNETTE EFFECT ==================== */
+.vignette {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+pointer-events: none;
+z-index: 9997;
+background: radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(0,0,0,0.7) 100%);
+}
+/* ==================== TYPOGRAPHY ==================== */
+h1, h2, h3, h4, h5, h6 {
+font-family: 'VT323', monospace;
+font-weight: 400;
+letter-spacing: 3px;
+text-transform: uppercase;
+}
+.glitch-text {
+font-family: 'Rubik Glitch', cursive;
+animation: glitch 3s infinite;
+}
+@keyframes glitch {
+0%, 90%, 100% { text-shadow: 0 0 0; }
+92% { text-shadow: 3px 0 var(--blood-red), -3px 0 var(--bon-blue); }
+94% { text-shadow: -3px 0 var(--blood-red), 3px 0 var(--bon-blue); }
+96% { text-shadow: 3px 0 var(--blood-red), -3px 0 var(--bon-blue); }
+}
+a {
+text-decoration: none;
+color: inherit;
+}
+button {
+cursor: pointer;
+border: none;
+outline: none;
+font-family: 'VT323', monospace;
+}
+img {
+max-width: 100%;
+height: auto;
+display: block;
+}
+/* ==================== UTILITY CLASSES ==================== */
+.container {
+max-width: 1400px;
+margin: 0 auto;
+padding: 0 20px;
+}
+.section {
+padding: 100px 0;
+position: relative;
+}
+.section-title {
+text-align: center;
+font-size: 4rem;
+color: var(--vintage-yellow);
+margin-bottom: 1rem;
+position: relative;
+display: inline-block;
+left: 50%;
+transform: translateX(-50%);
+text-shadow: 4px 4px 0 var(--blood-red);
+font-family: 'Rubik Glitch', cursive;
+}
+.section-title::after {
+content: '◆';
+position: absolute;
+bottom: -25px;
+left: 50%;
+transform: translateX(-50%);
+color: var(--blood-red);
+font-size: 1.5rem;
+}
+.section-subtitle {
+text-align: center;
+color: var(--static-gray);
+font-size: 1.4rem;
+margin-bottom: 4rem;
+max-width: 700px;
+margin-left: auto;
+margin-right: auto;
+font-family: 'VT323', monospace;
+letter-spacing: 2px;
+}
+.btn {
+display: inline-block;
+padding: 18px 45px;
+font-size: 1.3rem;
+font-weight: 500;
+text-transform: uppercase;
+border-radius: 0;
+transition: var(--transition);
+letter-spacing: 3px;
+position: relative;
+overflow: hidden;
+font-family: 'VT323', monospace;
+}
+.btn-primary {
+background: var(--vintage-yellow);
+color: var(--darker-bg);
+border: 3px solid var(--vintage-yellow);
+box-shadow: 6px 6px 0 var(--blood-red);
+}
+.btn-primary:hover {
+transform: translate(-3px, -3px);
+box-shadow: 9px 9px 0 var(--blood-red);
+}
+.btn-secondary {
+background: transparent;
+color: var(--vintage-yellow);
+border: 3px solid var(--vintage-yellow);
+box-shadow: 6px 6px 0 var(--bon-blue);
+}
+.btn-secondary:hover {
+background: var(--vintage-yellow);
+color: var(--darker-bg);
+}
+.btn-small {
+padding: 12px 30px;
+font-size: 1.1rem;
+}
+/* ==================== HEADER & NAVIGATION ==================== */
+.header {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+z-index: 1000;
+background: rgba(10, 10, 10, 0.95);
+border-bottom: 3px solid var(--vintage-yellow);
+transition: var(--transition);
+}
+.header.scrolled {
+background: rgba(5, 5, 5, 0.98);
+}
+.nav {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 15px 0;
+}
+.logo {
+display: flex;
+align-items: center;
+gap: 15px;
+font-family: 'Press Start 2P', cursive;
+font-size: 1rem;
+color: var(--vintage-yellow);
+}
+.logo-icon {
+width: 55px;
+height: 55px;
+background: var(--bon-blue);
+border: 3px solid var(--vintage-yellow);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.5rem;
+position: relative;
+animation: logoGlow 3s ease-in-out infinite;
+}
+@keyframes logoGlow {
+0%, 100% { box-shadow: 0 0 15px var(--vintage-yellow); }
+50% { box-shadow: 0 0 30px var(--vintage-yellow), 0 0 50px var(--bon-blue); }
+}
+.logo-text {
+line-height: 1.3;
+}
+.logo-text span {
+display: block;
+font-size: 0.7rem;
+color: var(--static-gray);
+}
+.nav-links {
+display: flex;
+list-style: none;
+gap: 35px;
+}
+.nav-link {
+font-family: 'VT323', monospace;
+font-size: 1.5rem;
+color: var(--text-light);
+position: relative;
+padding: 5px 0;
+transition: var(--transition);
+}
+.nav-link::before {
+content: '► ';
+opacity: 0;
+transition: var(--transition);
+color: var(--vintage-yellow);
+}
+.nav-link:hover, .nav-link.active {
+color: var(--vintage-yellow);
+}
+.nav-link:hover::before, .nav-link.active::before {
+opacity: 1;
+}
+.nav-actions {
+display: flex;
+align-items: center;
+gap: 20px;
+}
+
+/* ==================== SEARCH BAR ==================== */
+.search-container {
+position: relative;
+display: flex;
+align-items: center;
+}
+
+.search-input-wrapper {
+position: relative;
+}
+
+.search-input {
+width: 250px;
+padding: 10px 45px 10px 15px;
+background: var(--darker-bg);
+border: 2px solid var(--bon-blue);
+color: var(--text-light);
+font-family: 'VT323', monospace;
+font-size: 1.2rem;
+transition: var(--transition);
+}
+
+.search-input:focus {
+outline: none;
+border-color: var(--vintage-yellow);
+box-shadow: 0 0 15px rgba(212, 168, 74, 0.3);
+}
+
+.search-input::placeholder {
+color: var(--static-gray);
+}
+
+.search-icon {
+position: absolute;
+right: 15px;
+top: 50%;
+transform: translateY(-50%);
+color: var(--vintage-yellow);
+font-size: 1.1rem;
+pointer-events: none;
+}
+
+.search-results {
+position: absolute;
+top: calc(100% + 10px);
+right: 0;
+width: 350px;
+max-height: 400px;
+overflow-y: auto;
+background: var(--darker-bg);
+border: 3px solid var(--vintage-yellow);
+box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+z-index: 1001;
+display: none;
+}
+
+.search-results.active {
+display: block;
+animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+from {
+opacity: 0;
+transform: translateY(-10px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+
+.search-result-item {
+padding: 15px 20px;
+border-bottom: 2px dashed var(--bon-blue);
+cursor: pointer;
+transition: var(--transition);
+display: flex;
+align-items: center;
+gap: 15px;
+}
+
+.search-result-item:hover {
+background: rgba(212, 168, 74, 0.1);
+border-color: var(--vintage-yellow);
+}
+
+.search-result-item img {
+width: 60px;
+height: 60px;
+object-fit: cover;
+border: 2px solid var(--vintage-yellow);
+}
+
+.search-result-info h4 {
+font-family: 'Press Start 2P', cursive;
+font-size: 0.6rem;
+color: var(--vintage-yellow);
+margin-bottom: 5px;
+}
+
+.search-result-info p {
+font-size: 1rem;
+color: var(--static-gray);
+}
+
+.search-result-price {
+color: var(--blood-red);
+font-weight: bold;
+}
+
+.search-no-results {
+padding: 30px 20px;
+text-align: center;
+color: var(--static-gray);
+font-size: 1.2rem;
+}
+
+.search-close {
+position: absolute;
+top: 10px;
+right: 10px;
+background: var(--blood-red);
+color: var(--vintage-yellow);
+border: 2px solid var(--vintage-yellow);
+width: 30px;
+height: 30px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: var(--transition);
+font-size: 0.9rem;
+}
+
+.search-close:hover {
+background: var(--vintage-yellow);
+color: var(--blood-red);
+}
+
+/* ==================== CART & MOBILE ==================== */
+.cart-btn {
+position: relative;
+background: none;
+font-size: 1.5rem;
+color: var(--vintage-yellow);
+transition: var(--transition);
+}
+.cart-btn:hover {
+color: var(--blood-red);
+transform: scale(1.1);
+}
+.cart-badge {
+position: absolute;
+top: -8px;
+right: -8px;
+background: var(--blood-red);
+color: var(--vintage-yellow);
+font-family: 'Press Start 2P', cursive;
+font-size: 0.5rem;
+width: 22px;
+height: 22px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+border: 2px solid var(--vintage-yellow);
+}
+.mobile-toggle {
+display: none;
+font-size: 1.5rem;
+background: none;
+color: var(--vintage-yellow);
+}
+/* ==================== HERO SECTION ==================== */
+.hero {
+min-height: 100vh;
+display: flex;
+align-items: center;
+background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f1a 100%);
+position: relative;
+overflow: hidden;
+padding-top: 80px;
+}
+.hero::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-image:
+radial-gradient(circle at 30% 70%, rgba(74, 122, 140, 0.2) 0%, transparent 50%),
+radial-gradient(circle at 70% 30%, rgba(212, 168, 74, 0.15) 0%, transparent 50%);
+}
+.hero-content {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 60px;
+align-items: center;
+position: relative;
+z-index: 1;
+}
+.hero-text h1 {
+font-size: 4.5rem;
+color: var(--vintage-yellow);
+line-height: 1;
+margin-bottom: 20px;
+text-shadow: 5px 5px 0 var(--blood-red), 10px 10px 0 rgba(0,0,0,0.5);
+font-family: 'Rubik Glitch', cursive;
+}
+.hero-text h1 span {
+color: var(--bon-blue);
+text-shadow: 3px 3px 0 var(--vintage-yellow);
+}
+.hero-date {
+font-family: 'Press Start 2P', cursive;
+font-size: 0.8rem;
+color: var(--static-gray);
+margin-bottom: 25px;
+display: block;
+}
+.hero-text p {
+font-size: 1.5rem;
+color: var(--static-gray);
+margin-bottom: 30px;
+max-width: 550px;
+line-height: 1.8;
+}
+.hero-tagline {
+font-family: 'Press Start 2P', cursive;
+font-size: 0.9rem;
+color: var(--vintage-yellow);
+margin-bottom: 40px;
+padding: 15px 25px;
+background: rgba(212, 168, 74, 0.1);
+border: 2px solid var(--vintage-yellow);
+display: inline-block;
+}
+.hero-buttons {
+display: flex;
+gap: 20px;
+flex-wrap: wrap;
+}
+.hero-image {
+position: relative;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+.hero-frame {
+width: 100%;
+max-width: 550px;
+background: var(--darker-bg);
+border: 4px solid var(--vintage-yellow);
+padding: 15px;
+position: relative;
+box-shadow: 0 0 60px rgba(212, 168, 74, 0.3);
+}
+.hero-frame::before {
+content: '★ BON'S BURGERS ★';
+position: absolute;
+top: -18px;
+left: 50%;
+transform: translateX(-50%);
+background: var(--blood-red);
+color: var(--vintage-yellow);
+padding: 6px 25px;
+font-family: 'Press Start 2P', cursive;
+font-size: 0.7rem;
+white-space: nowrap;
+border: 2px solid var(--vintage-yellow);
+}
+.hero-frame::after {
+content: 'BUNNY SMILES INC.';
+position: absolute;
+bottom: -18px;
+left: 50%;
+transform: translateX(-50%);
+background: var(--bon-blue);
+color: var(--vintage-yellow);
+padding: 6px 25px;
+font-family: 'Press Start 2P', cursive;
+font-size: 0.6rem;
+white-space: nowrap;
+border: 2px solid var(--vintage-yellow);
+}
+.hero-burger {
+width: 100%;
+filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6)) contrast(1.1) sepia(0.3);
+animation: burgerFloat 5s ease-in-out infinite;
+}
+@keyframes burgerFloat {
+0%, 100% { transform: translateY(0) rotate(0deg); }
+25% { transform: translateY(-20px) rotate(2deg); }
+75% { transform: translateY(-12px) rotate(-2deg); }
+}
+.hero-stats {
+display: flex;
+gap: 35px;
+margin-top: 60px;
+flex-wrap: wrap;
+}
+.stat {
+text-align: center;
+padding: 20px 25px;
+background: rgba(212, 168, 74, 0.08);
+border: 2px solid var(--vintage-yellow);
+min-width: 140px;
+}
+.stat-number {
+font-family: 'Press Start 2P', cursive;
+font-size: 1.3rem;
+color: var(--vintage-yellow);
+margin-bottom: 8px;
+}
+.stat-label {
+color: var(--static-gray);
+font-size: 1rem;
+text-transform: uppercase;
+letter-spacing: 2px;
+}
+/* ==================== MASCOTS SECTION ==================== */
+.mascots {
+background: linear-gradient(180deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+}
+.mascots .section-title {
+color: var(--vintage-yellow);
+}
+.mascots-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+gap: 35px;
+margin-top: 50px;
+}
+.mascot-card {
+background: var(--dark-bg);
+border: 3px solid var(--vintage-yellow);
+padding: 0;
+text-align: center;
+position: relative;
+transition: var(--transition);
+box-shadow: 8px 8px 0 var(--blood-red);
+overflow: hidden;
+}
+.mascot-card:hover {
+transform: translateY(-10px);
+box-shadow: 12px 12px 0 var(--blood-red);
+}
+.mascot-card::before {
+content: '★';
+position: absolute;
+top: 10px;
+left: 10px;
+color: var(--vintage-yellow);
+font-size: 1.2rem;
+z-index: 1;
+}
+.mascot-card::after {
+content: '★';
+position: absolute;
+bottom: 10px;
+right: 10px;
+color: var(--vintage-yellow);
+font-size: 1.2rem;
+z-index: 1;
+}
+.mascot-image-container {
+height: 320px;
+overflow: hidden;
+background: var(--darker-bg);
+position: relative;
+}
+.mascot-image-container img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+transition: var(--transition);
+filter: contrast(1.1) sepia(0.2);
+}
+.mascot-card:hover .mascot-image-container img {
+transform: scale(1.08);
+filter: contrast(1.2) sepia(0.3);
+}
+.mascot-content {
+padding: 25px;
+background: var(--dark-bg);
+border-top: 3px solid var(--vintage-yellow);
+}
+.mascot-name {
+font-family: 'Rubik Glitch', cursive;
+font-size: 2rem;
+color: var(--vintage-yellow);
+margin-bottom: 8px;
+}
+.mascot-role {
+font-size: 1.2rem;
+color: var(--bon-blue);
+margin-bottom: 12px;
+font-style: italic;
+}
+.mascot-desc {
+font-size: 1rem;
+color: var(--static-gray);
+line-height: 1.6;
+}
+.mascot-possessed {
+margin-top: 15px;
+padding: 10px;
+background: rgba(139, 0, 0, 0.2);
+border: 1px solid var(--blood-red);
+font-size: 0.9rem;
+color: var(--blood-red);
+}
+/* ==================== MENU SECTION ==================== */
+.menu {
+background: var(--dark-bg);
+}
+.menu-filters {
+display: flex;
+justify-content: center;
+gap: 15px;
+flex-wrap: wrap;
+margin-bottom: 50px;
+}
+.filter-btn {
+padding: 12px 30px;
+background: transparent;
+border: 2px solid var(--vintage-yellow);
+color: var(--vintage-yellow);
+font-size: 1.3rem;
+transition: var(--transition);
+font-family: 'VT323', monospace;
+}
+.filter-btn:hover, .filter-btn.active {
+background: var(--vintage-yellow);
+color: var(--darker-bg);
+}
+.menu-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+gap: 30px;
+}
+.menu-card {
+background: var(--darker-bg);
+border: 3px solid var(--bon-blue);
+overflow: hidden;
+transition: var(--transition);
+position: relative;
+}
+.menu-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 15px 40px rgba(212, 168, 74, 0.2);
+border-color: var(--vintage-yellow);
+}
+.menu-card-image {
+height: 220px;
+overflow: hidden;
+position: relative;
+background: var(--darker-bg);
+}
+.menu-card-image img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+transition: var(--transition);
+filter: contrast(1.1);
+}
+.menu-card:hover .menu-card-image img {
+transform: scale(1.1);
+}
+.menu-card-badge {
+position: absolute;
+top: 15px;
+left: 15px;
+background: var(--blood-red);
+color: var(--vintage-yellow);
+padding: 5px 15px;
+font-family: 'Press Start 2P', cursive;
+font-size: 0.5rem;
+border: 2px solid var(--vintage-yellow);
+}
+.menu-card-content {
+padding: 25px;
+}
+.menu-card-title {
+font-family: 'Rubik Glitch', cursive;
+font-size: 1.4rem;
+color: var(--vintage-yellow);
+margin-bottom: 10px;
+line-height: 1.3;
+}
+.menu-card-description {
+color: var(--static-gray);
+font-size: 1rem;
+margin-bottom: 15px;
+line-height: 1.5;
+}
+.menu-card-meta {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 15px;
+padding-bottom: 15px;
+border-bottom: 1px dashed var(--static-gray);
+}
+.menu-card-price {
+font-family: 'Press Start 2P', cursive;
+font-size: 1.1rem;
+color: var(--blood-red);
+}
+.menu-card-calories {
+color: var(--static-gray);
+font-size: 1rem;
+}
+.add-to-cart-btn {
+width: 100%;
+padding: 15px;
+background: var(--vintage-yellow);
+color: var(--darker-bg);
+border: 2px solid var(--bon-blue);
+font-size: 1.2rem;
+transition: var(--transition);
+font-family: 'VT323', monospace;
+}
+.add-to-cart-btn:hover {
+background: var(--blood-red);
+color: var(--vintage-yellow);
+}
+/* ==================== LORE SECTION ==================== */
+.lore {
+background: linear-gradient(135deg, var(--bon-blue-dark) 0%, var(--banny-purple-dark) 100%);
+position: relative;
+}
+.lore::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a84a' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.lore-content {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 60px;
+align-items: center;
+position: relative;
+z-index: 1;
+}
+.lore-text h2 {
+font-size: 2.5rem;
+color: var(--vintage-yellow);
+margin-bottom: 25px;
+font-family: 'Rubik Glitch', cursive;
+}
+.lore-text p {
+color: var(--text-light);
+font-size: 1.2rem;
+margin-bottom: 20px;
+line-height: 1.8;
+}
+.lore-info {
+background: rgba(0,0,0,0.4);
+border: 2px solid var(--vintage-yellow);
+padding: 25px;
+margin-top: 30px;
+}
+.lore-info-item {
+display: flex;
+justify-content: space-between;
+padding: 12px 0;
+border-bottom: 1px solid rgba(212, 168, 74, 0.3);
+font-size: 1.2rem;
+}
+.lore-info-item:last-child {
+border-bottom: none;
+}
+.lore-info-label {
+color: var(--vintage-yellow);
+font-weight: bold;
+}
+.lore-info-value {
+color: var(--text-light);
+}
+.lore-images {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 20px;
+}
+.lore-image {
+border: 4px solid var(--vintage-yellow);
+background: var(--darker-bg);
+overflow: hidden;
+position: relative;
+}
+.lore-image.large {
+grid-row: span 2;
+}
+.lore-image img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+filter: sepia(0.4) contrast(1.2) brightness(0.9);
+}
+/* ==================== CONTACT SECTION ==================== */
+.contact {
+background: var(--darker-bg);
+color: var(--text-light);
+}
+.contact .section-title {
+color: var(--vintage-yellow);
+}
+.contact-content {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 60px;
+}
+.contact-info {
+padding: 40px;
+background: var(--bon-blue-dark);
+border: 4px solid var(--vintage-yellow);
+box-shadow: 10px 10px 0 var(--blood-red);
+}
+.contact-info h3 {
+font-family: 'Rubik Glitch', cursive;
+font-size: 1.8rem;
+color: var(--vintage-yellow);
+margin-bottom: 30px;
+}
+.contact-item {
+display: flex;
+align-items: flex-start;
+gap: 20px;
+margin-bottom: 25px;
+}
+.contact-item-icon {
+width: 50px;
+height: 50px;
+background: var(--vintage-yellow);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.2rem;
+color: var(--darker-bg);
+flex-shrink: 0;
+}
+.contact-item-text h4 {
+font-family: 'Press Start 2P', cursive;
+font-size: 0.7rem;
+color: var(--vintage-yellow);
+margin-bottom: 5px;
+}
+.contact-item-text p {
+font-size: 1.2rem;
+color: var(--text-light);
+}
+.social-links {
+display: flex;
+gap: 15px;
+margin-top: 30px;
+}
+.social-link {
+width: 45px;
+height: 45px;
+background: var(--vintage-yellow);
+color: var(--darker-bg);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.2rem;
+transition: var(--transition);
+border: 2px solid var(--blood-red);
+}
+.social-link:hover {
+background: var(--blood-red);
+color: var(--vintage-yellow);
+transform: rotate(360deg);
+}
+.contact-form {
+padding: 40px;
+background: var(--dark-bg);
+border: 4px solid var(--bon-blue);
+box-shadow: 10px 10px 0 var(--vintage-yellow);
+}
+.contact-form h3 {
+font-family: 'Rubik Glitch', cursive;
+font-size: 1.8rem;
+color: var(--vintage-yellow);
+margin-bottom: 30px;
+}
+.form-group {
+margin-bottom: 20px;
+}
+.form-group label {
+display: block;
+font-family: 'Press Start 2P', cursive;
+font-size: 0.7rem;
+color: var(--vintage-yellow);
+margin-bottom: 8px;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+width: 100%;
+padding: 15px;
+border: 3px solid var(--bon-blue);
+font-family: 'VT323', monospace;
+font-size: 1.2rem;
+transition: var(--transition);
+background: var(--darker-bg);
+color: var(--text-light);
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+outline: none;
+border-color: var(--vintage-yellow);
+box-shadow: 0 0 15px rgba(212, 168, 74, 0.3);
+}
+.form-group textarea {
+min-height: 150px;
+resize: vertical;
+}
+.form-row {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 20px;
+}
+/* ==================== CART SIDEBAR ==================== */
+.cart-overlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0,0,0,0.85);
+z-index: 2000;
+opacity: 0;
+visibility: hidden;
+transition: var(--transition);
+}
+.cart-overlay.active {
+opacity: 1;
+visibility: visible;
+}
+.cart-sidebar {
+position: fixed;
+top: 0;
+right: -450px;
+width: 450px;
+max-width: 100%;
+height: 100vh;
+background: var(--darker-bg);
+z-index: 2001;
+transition: var(--transition);
+display: flex;
+flex-direction: column;
+border-left: 4px solid var(--vintage-yellow);
+}
+.cart-sidebar.active {
+right: 0;
+}
+.cart-header {
+padding: 25px 30px;
+border-bottom: 3px solid var(--bon-blue);
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: var(--bon-blue-dark);
+}
+.cart-header h3 {
+font-family: 'Rubik Glitch', cursive;
+font-size: 1.5rem;
+color: var(--vintage-yellow);
+}
+.cart-close {
+width: 40px;
+height: 40px;
+background: var(--blood-red);
+color: var(--vintage-yellow);
+font-size: 1.2rem;
+transition: var(--transition);
+border: 2px solid var(--vintage-yellow);
+}
+.cart-close:hover {
+background: var(--vintage-yellow);
+color: var(--blood-red);
+}
+.cart-items {
+flex: 1;
+overflow-y: auto;
+padding: 20px 30px;
+}
+.cart-empty {
+text-align: center;
+padding: 60px 20px;
+color: var(--static-gray);
+}
+.cart-empty-icon {
+font-size: 4rem;
+margin-bottom: 20px;
+opacity: 0.3;
+}
+.cart-item {
+display: flex;
+gap: 15px;
+padding: 20px 0;
+border-bottom: 2px dashed var(--bon-blue);
+}
+.cart-item-image {
+width: 80px;
+height: 80px;
+border: 2px solid var(--vintage-yellow);
+flex-shrink: 0;
+background: var(--darker-bg);
+}
+.cart-item-image img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+.cart-item-details {
+flex: 1;
+}
+.cart-item-title {
+font-family: 'Press Start 2P', cursive;
+font-size: 0.7rem;
+color: var(--vintage-yellow);
+margin-bottom: 5px;
+}
+.cart-item-price {
+color: var(--blood-red);
+font-size: 1.3rem;
+}
+.cart-item-actions {
+display: flex;
+align-items: center;
+gap: 10px;
+margin-top: 10px;
+}
+.quantity-controls {
+display: flex;
+align-items: center;
+gap: 5px;
+border: 2px solid var(--bon-blue);
+}
+.quantity-btn {
+width: 35px;
+height: 35px;
+background: var(--vintage-yellow);
+color: var(--darker-bg);
+font-weight: 700;
+transition: var(--transition);
+}
+.quantity-btn:hover {
+background: var(--blood-red);
+color: var(--vintage-yellow);
+}
+.quantity-value {
+font-family: 'Press Start 2P', cursive;
+font-size: 0.7rem;
+min-width: 30px;
+text-align: center;
+}
+.cart-item-remove {
+margin-left: auto;
+color: var(--blood-red);
+transition: var(--transition);
+}
+.cart-item-remove:hover {
+color: var(--vintage-yellow);
+}
+.cart-footer {
+padding: 25px 30px;
+border-top: 3px solid var(--bon-blue);
+background: var(--bon-blue-dark);
+}
+.cart-summary {
+margin-bottom: 20px;
+}
+.cart-summary-row {
+display: flex;
+justify-content: space-between;
+margin-bottom: 10px;
+color: var(--static-gray);
+font-size: 1.2rem;
+}
+.cart-summary-row.total {
+font-size: 1.5rem;
+color: var(--vintage-yellow);
+padding-top: 15px;
+border-top: 2px solid var(--vintage-yellow);
+margin-top: 15px;
+font-family: 'Press Start 2P', cursive;
+font-size: 0.9rem;
+}
+.cart-checkout-btn {
+width: 100%;
+padding: 18px;
+background: var(--vintage-yellow);
+color: var(--darker-bg);
+border: 3px solid var(--blood-red);
+font-size: 1.2rem;
+transition: var(--transition);
+box-shadow: 5px 5px 0 var(--blood-red);
+font-family: 'VT323', monospace;
+}
+.cart-checkout-btn:hover {
+transform: translate(-2px, -2px);
+box-shadow: 7px 7px 0 var(--blood-red);
+}
+.cart-checkout-btn:disabled {
+background: var(--static-gray);
+cursor: not-allowed;
+box-shadow: none;
+}
+/* ==================== FOOTER ==================== */
+.footer {
+background: var(--darker-bg);
+color: var(--text-light);
+padding: 60px 0 30px;
+border-top: 4px solid var(--vintage-yellow);
+}
+.footer-content {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 40px;
+margin-bottom: 40px;
+}
+.footer-section h4 {
+font-family: 'Press Start 2P', cursive;
+font-size: 0.8rem;
+margin-bottom: 25px;
+color: var(--vintage-yellow);
+}
+.footer-section p {
+color: var(--static-gray);
+line-height: 1.8;
+font-size: 1.1rem;
+}
+.footer-links {
+list-style: none;
+}
+.footer-links li {
+margin-bottom: 12px;
+}
+.footer-links a {
+color: var(--static-gray);
+transition: var(--transition);
+font-size: 1.1rem;
+}
+.footer-links a:hover {
+color: var(--vintage-yellow);
+padding-left: 10px;
+}
+.footer-links a::before {
+content: '► ';
+color: var(--blood-red);
+}
+.footer-bottom {
+text-align: center;
+padding-top: 30px;
+border-top: 1px solid rgba(212, 168, 74, 0.3);
+color: var(--static-gray);
+font-size: 1rem;
+}
+.bunny-smiles-logo {
+display: inline-block;
+padding: 10px 20px;
+background: var(--bon-blue);
+border: 2px solid var(--vintage-yellow);
+font-family: 'Press Start 2P', cursive;
+font-size: 0.6rem;
+color: var(--vintage-yellow);
+margin-top: 15px;
+}
+/* ==================== PAGE TRANSITIONS ==================== */
+.page-enter-active,
+.page-leave-active {
+transition: all 0.5s ease;
+}
+.page-enter-from {
+opacity: 0;
+transform: translateY(30px);
+}
+.page-leave-to {
+opacity: 0;
+transform: translateY(-30px);
+}
+/* ==================== TOAST NOTIFICATION ==================== */
+.toast {
+position: fixed;
+bottom: 30px;
+right: 30px;
+background: var(--bon-blue-dark);
+color: var(--vintage-yellow);
+padding: 15px 25px;
+border: 2px solid var(--vintage-yellow);
+display: flex;
+align-items: center;
+gap: 12px;
+z-index: 3000;
+transform: translateX(150%);
+transition: var(--transition);
+font-size: 1.2rem;
+}
+.toast.show {
+transform: translateX(0);
+}
+.toast-icon {
+color: var(--vintage-yellow);
+font-size: 1.3rem;
+}
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+.search-input {
+width: 180px;
+}
+.search-results {
+width: 300px;
+}
+.hero-content {
+grid-template-columns: 1fr;
+text-align: center;
+}
+.hero-text h1 {
+font-size: 3rem;
+}
+.hero-text p {
+margin-left: auto;
+margin-right: auto;
+}
+.hero-buttons {
+justify-content: center;
+}
+.hero-stats {
+justify-content: center;
+}
+.lore-content {
+grid-template-columns: 1fr;
+}
+.contact-content {
+grid-template-columns: 1fr;
+}
+}
+@media (max-width: 768px) {
+.nav-links {
+display: none;
+position: absolute;
+top: 100%;
+left: 0;
+right: 0;
+background: var(--darker-bg);
+flex-direction: column;
+padding: 20px;
+gap: 20px;
+border-bottom: 3px solid var(--vintage-yellow);
+}
+.nav-links.active {
+display: flex;
+}
+.mobile-toggle {
+display: block;
+}
+.search-container {
+display: none;
+}
+.hero-text h1 {
+font-size: 2rem;
+}
+.section-title {
+font-size: 2.5rem;
+}
+.form-row {
+grid-template-columns: 1fr;
+}
+.cart-sidebar {
+width: 100%;
+right: -100%;
+}
+.lore-images {
+grid-template-columns: 1fr;
+}
+.lore-image.large {
+grid-row: auto;
+}
+}
+@media (max-width: 480px) {
+.hero-text h1 {
+font-size: 1.5rem;
+}
+.hero-stats {
+flex-direction: column;
+gap: 15px;
+}
+.menu-grid {
+grid-template-columns: 1fr;
+}
+.mascots-grid {
+grid-template-columns: 1fr;
+}
+}
+/* ==================== SECRET EASTER EGG ==================== */
+.secret-message {
+display: none;
+position: fixed;
+bottom: 10px;
+left: 10px;
+font-size: 0.9rem;
+color: rgba(212, 168, 74, 0.3);
+z-index: 100;
+}
+.secret-message.visible {
+display: block;
+}
+/* ==================== WARNING BANNER ==================== */
+.warning-banner {
+background: var(--blood-red);
+color: var(--vintage-yellow);
+text-align: center;
+padding: 10px;
+font-family: 'Press Start 2P', cursive;
+font-size: 0.6rem;
+border-bottom: 2px solid var(--vintage-yellow);
+
+/* ==================== SCROLLING BACKGROUND WITH BON ==================== */
+.scrolling-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -2;
+    background-image: url('frontend/src/assets/images/bon-pattern.png');
+    background-size: 300px 300px;
+    background-repeat: repeat;
+    background-position: 0 0;
+    opacity: 0.12;
+    animation: scrollBackground 20s linear infinite;
+}
+
+@keyframes scrollBackground {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 0 -300px;
+    }
+}
+
+/* Затемнение поверх фона */
+.bg-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background: linear-gradient(
+        135deg,
+        rgba(10, 10, 10, 0.92) 0%,
+        rgba(5, 5, 5, 0.95) 100%
+    );
+}
+}
+</style>
+</head>
+<body>
+<!-- Analog Horror Effects -->
+<div class="crt-overlay"></div>
+<div class="noise-overlay"></div>
+<div class="vignette"></div>
+<!-- Анимированный фон с Bon -->
+<div class="scrolling-bg"></div>
+<div class="bg-overlay"></div>
+<div id="app">
+<!-- Warning Banner -->
+<div class="warning-banner">
+⚠ BUNNY SMILES INC. PRESENTS ⚠
+</div>
+<!-- ==================== HEADER ==================== -->
+<header class="header" :class="{ scrolled: isScrolled }">
+<div class="container">
+<nav class="nav">
+<a href="#" class="logo" @click.prevent="navigateTo('home')">
+<div class="logo-icon">
+<i class="fas fa-carrot"></i>
+</div>
+<div class="logo-text">
+BON'S BURGERS
+<span>EST. 1974</span>
+</div>
+</a>
+<ul class="nav-links" :class="{ active: mobileMenuOpen }">
+<li><a href="#" class="nav-link" :class="{ active: currentPage === 'home' }" @click.prevent="navigateTo('home')">► HOME</a></li>
+<li><a href="#" class="nav-link" :class="{ active: currentPage === 'menu' }" @click.prevent="navigateTo('menu')">► MENU</a></li>
+<li><a href="#" class="nav-link" :class="{ active: currentPage === 'mascots' }" @click.prevent="navigateTo('mascots')">► SHOWSTOPPERS</a></li>
+<li><a href="#" class="nav-link" :class="{ active: currentPage === 'lore' }" @click.prevent="navigateTo('lore')">► LORE</a></li>
+<li><a href="#" class="nav-link" :class="{ active: currentPage === 'contact' }" @click.prevent="navigateTo('contact')">► CONTACT</a></li>
+</ul>
+<div class="nav-actions">
+<!-- SEARCH BAR -->
+<div class="search-container">
+<div class="search-input-wrapper">
+<input 
+type="text" 
+class="search-input" 
+v-model="searchQuery"
+@input="handleSearch"
+@focus="showSearchResults = true"
+placeholder="SEARCH MENU..."
+>
+<i class="fas fa-search search-icon"></i>
+</div>
+<!-- SEARCH RESULTS DROPDOWN -->
+<div class="search-results" :class="{ active: showSearchResults && searchQuery.length > 0 }">
+<button class="search-close" @click="closeSearch">
+<i class="fas fa-times"></i>
+</button>
+<div v-if="searchResults.length > 0">
+<div 
+class="search-result-item" 
+v-for="item in searchResults" 
+:key="item.id"
+@click="selectSearchResult(item)"
+>
+<img :src="item.image" :alt="item.name">
+<div class="search-result-info">
+<h4>{{ item.name }}</h4>
+<p>{{ item.description }}</p>
+<span class="search-result-price">${{ item.price }}</span>
+</div>
+</div>
+</div>
+<div v-else class="search-no-results">
+<i class="fas fa-ghost" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+NO ITEMS FOUND
+</div>
+</div>
+</div>
+<button class="cart-btn" @click="toggleCart">
+<i class="fas fa-shopping-cart"></i>
+<span class="cart-badge" v-if="cartTotalItems > 0">{{ cartTotalItems }}</span>
+</button>
+<button class="mobile-toggle" @click="mobileMenuOpen = !mobileMenuOpen">
+<i :class="mobileMenuOpen ? 'fas fa-times' : 'fas fa-bars'"></i>
+</button>
+</div>
+</nav>
+</div>
+</header>
+<!-- ==================== MAIN CONTENT ==================== -->
+<main>
+<transition name="page" mode="out-in">
+<!-- HOME PAGE -->
+<div v-if="currentPage === 'home'" key="home">
+<!-- Hero Section -->
+<section class="hero">
+<div class="container">
+<div class="hero-content">
+<div class="hero-text">
+<span class="hero-date">■ JUNE 28, 1974 ■</span>
+<h1 class="glitch-text" data-text="WELCOME TO BON'S BURGERS">WELCOME TO <span>BON'S</span> BURGERS</h1>
+<p>Brighton, Wisconsin — Where families gather for quality food and entertainment. Home of The Showstoppers animatronic band.</p>
+<div class="hero-tagline">
+★ FAMILY FUN AND MORE! ★
+</div>
+<div class="hero-buttons">
+<button class="btn btn-primary" @click="navigateTo('menu')">
+<i class="fas fa-utensils"></i> VIEW MENU
+</button>
+<button class="btn btn-secondary" @click="navigateTo('contact')">
+<i class="fas fa-phone"></i> ORDER NOW
+</button>
+</div>
+<div class="hero-stats">
+<div class="stat">
+<div class="stat-number">1974</div>
+<div class="stat-label">ESTABLISHED</div>
+</div>
+<div class="stat">
+<div class="stat-number">4</div>
+<div class="stat-label">SHOWSTOPPERS</div>
+</div>
+<div class="stat">
+<div class="stat-number">BSI</div>
+<div class="stat-label">BUNNY SMILES INC.</div>
+</div>
+</div>
+</div>
+<div class="hero-image">
+<div class="hero-frame">
+<img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=550&h=550&fit=crop" alt="Bon's Burger" class="hero-burger">
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Mascots Preview -->
+<section class="section mascots">
+<div class="container">
+<h2 class="section-title">THE SHOWSTOPPERS</h2>
+<p class="section-subtitle">◆ Meet the stars of Bon's Burgers ◆</p>
+<div class="mascots-grid">
+<div class="mascot-card" v-for="mascot in mascots" :key="mascot.id">
+<div class="mascot-image-container">
+<img :src="mascot.image" :alt="mascot.name">
+</div>
+<div class="mascot-content">
+<h3 class="mascot-name">{{ mascot.name }}</h3>
+<p class="mascot-role">{{ mascot.role }}</p>
+<p class="mascot-desc">{{ mascot.description }}</p>
+<div class="mascot-possessed" v-if="mascot.possessed">
+<i class="fas fa-ghost"></i> {{ mascot.possessed }}
+</div>
+</div>
+</div>
+</div>
+<div style="text-align: center; margin-top: 50px;">
+<button class="btn btn-primary" @click="navigateTo('mascots')">
+<i class="fas fa-star"></i> MEET THEM ALL
+</button>
+</div>
+</div>
+</section>
+<!-- Featured Menu -->
+<section class="section menu">
+<div class="container">
+<h2 class="section-title">FAN FAVORITES</h2>
+<p class="section-subtitle">◆ As Seen On TV Commercial 1974 ◆</p>
+<div class="menu-grid">
+<div class="menu-card" v-for="item in featuredMenu" :key="item.id">
+<div class="menu-card-image">
+<img :src="item.image" :alt="item.name">
+<span class="menu-card-badge" v-if="item.badge">{{ item.badge }}</span>
+</div>
+<div class="menu-card-content">
+<h3 class="menu-card-title">{{ item.name }}</h3>
+<p class="menu-card-description">{{ item.description }}</p>
+<div class="menu-card-meta">
+<span class="menu-card-price">${{ item.price }}</span>
+<span class="menu-card-calories">{{ item.calories }} CAL</span>
+</div>
+<button class="add-to-cart-btn" @click="addToCart(item)">
+<i class="fas fa-cart-plus"></i> ADD TO CART
+</button>
+</div>
+</div>
+</div>
+<div style="text-align: center; margin-top: 50px;">
+<button class="btn btn-secondary" @click="navigateTo('menu')">
+<i class="fas fa-arrow-right"></i> FULL MENU
+</button>
+</div>
+</div>
+</section>
+</div>
+<!-- MENU PAGE -->
+<div v-else-if="currentPage === 'menu'" key="menu">
+<section class="section menu" style="padding-top: 150px;">
+<div class="container">
+<h2 class="section-title">OUR MENU</h2>
+<p class="section-subtitle">◆ Fresh Made Daily Since 1974 ◆</p>
+<div class="menu-filters">
+<button
+class="filter-btn"
+:class="{ active: activeFilter === 'all' }"
+@click="activeFilter = 'all'"
+>
+► ALL
+</button>
+<button
+class="filter-btn"
+:class="{ active: activeFilter === 'burgers' }"
+@click="activeFilter = 'burgers'"
+>
+► BURGERS
+</button>
+<button
+class="filter-btn"
+:class="{ active: activeFilter === 'sides' }"
+@click="activeFilter = 'sides'"
+>
+► SIDES
+</button>
+<button
+class="filter-btn"
+:class="{ active: activeFilter === 'drinks' }"
+@click="activeFilter = 'drinks'"
+>
+► DRINKS
+</button>
+<button
+class="filter-btn"
+:class="{ active: activeFilter === 'kids' }"
+@click="activeFilter = 'kids'"
+>
+► KIDS MEAL
+</button>
+</div>
+<div class="menu-grid">
+<div class="menu-card" v-for="item in filteredMenu" :key="item.id">
+<div class="menu-card-image">
+<img :src="item.image" :alt="item.name">
+<span class="menu-card-badge" v-if="item.badge">{{ item.badge }}</span>
+</div>
+<div class="menu-card-content">
+<h3 class="menu-card-title">{{ item.name }}</h3>
+<p class="menu-card-description">{{ item.description }}</p>
+<div class="menu-card-meta">
+<span class="menu-card-price">${{ item.price }}</span>
+<span class="menu-card-calories">{{ item.calories }} CAL</span>
+</div>
+<div v-if="cart[item.id]" class="menu-card-actions">
+<div class="quantity-controls">
+<button class="quantity-btn" @click="decreaseQuantity(item)">-</button>
+<span class="quantity-value">{{ cart[item.id] }}</span>
+<button class="quantity-btn" @click="increaseQuantity(item)">+</button>
+</div>
+</div>
+<div v-else class="menu-card-actions">
+<button class="add-to-cart-btn" @click="addToCart(item)">
+<i class="fas fa-cart-plus"></i> ADD TO CART
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- MASCOTS PAGE -->
+<div v-else-if="currentPage === 'mascots'" key="mascots">
+<section class="section mascots" style="padding-top: 150px;">
+<div class="container">
+<h2 class="section-title">THE SHOWSTOPPERS</h2>
+<p class="section-subtitle">◆ The Stars of Bon's Burgers ◆</p>
+<div class="mascots-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+<div class="mascot-card" v-for="mascot in mascots" :key="mascot.id">
+<div class="mascot-image-container" style="height: 380px;">
+<img :src="mascot.image" :alt="mascot.name" style="object-fit: cover;">
+</div>
+<div class="mascot-content">
+<h3 class="mascot-name">{{ mascot.name }}</h3>
+<p class="mascot-role">{{ mascot.role }}</p>
+<p class="mascot-desc">{{ mascot.fullDescription }}</p>
+<div class="mascot-possessed" v-if="mascot.possessed">
+<i class="fas fa-ghost"></i> POSSESSED BY: {{ mascot.possessed }}
+</div>
+<div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed var(--vintage-yellow);">
+<p style="font-size: 1.1rem; color: var(--static-gray);">
+<i class="fas fa-calendar"></i> DEBUT: {{ mascot.debut }}
+</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bunny Smiles Inc Info -->
+<div style="margin-top: 80px; text-align: center;">
+<div class="bunny-smiles-logo">
+<i class="fas fa-rabbit"></i> BUNNY SMILES INCORPORATED ©
+</div>
+<p style="margin-top: 20px; font-size: 1.3rem; color: var(--static-gray);">
+"Creating Smiles Since 1974"
+</p>
+</div>
+</div>
+</section>
+</div>
+<!-- LORE PAGE -->
+<div v-else-if="currentPage === 'lore'" key="lore">
+<section class="section lore" style="padding-top: 150px;">
+<div class="container">
+<h2 class="section-title">THE STORY</h2>
+<p class="section-subtitle">◆ The Rise and Fall of Bon's Burgers ◆</p>
+<div class="lore-content">
+<div class="lore-text">
+<h2>A Dream Born in 1958</h2>
+<p>The idea of Bon's Burgers began in 1958, when two college students, <strong>Jack Walten</strong> and <strong>Felix Kranken</strong>, shared the idea of a restaurant that had animated performers [[1]].</p>
+<p>After years of development, Bon's Burgers officially opened on <strong>June 28, 1974</strong> in Brighton, Wisconsin [[25]]. The restaurant quickly became a local favorite, known for its delicious food and entertaining animatronic shows.</p>
+<p>The Showstoppers — Bon, Banny, Sha, and Boozoo — became beloved characters among children and families alike [[6]]. Created by Bunny Smiles Incorporated, the restaurant lasted from June 28, 1974 to the 20th of 1982 [[27]].</p>
+<div class="lore-info">
+<div class="lore-info-item">
+<span class="lore-info-label">FOUNDED:</span>
+<span class="lore-info-value">1958 (Concept)</span>
+</div>
+<div class="lore-info-item">
+<span class="lore-info-label">OPENED:</span>
+<span class="lore-info-value">June 28, 1974</span>
+</div>
+<div class="lore-info-item">
+<span class="lore-info-label">CLOSED:</span>
+<span class="lore-info-value">1982</span>
+</div>
+<div class="lore-info-item">
+<span class="lore-info-label">LOCATION:</span>
+<span class="lore-info-value">Brighton, Wisconsin</span>
+</div>
+<div class="lore-info-item">
+<span class="lore-info-label">FOUNDERS:</span>
+<span class="lore-info-value">Jack Walten & Felix Kranken</span>
+</div>
+<div class="lore-info-item">
+<span class="lore-info-label">PARENT COMPANY:</span>
+<span class="lore-info-value">Bunny Smiles Inc.</span>
+</div>
+<div class="lore-info-item">
+<span class="lore-info-label">MASCOTS:</span>
+<span class="lore-info-value">4 Showstoppers</span>
+</div>
+</div>
+</div>
+<div class="lore-images">
+<div class="lore-image large">
+<img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&h=600&fit=crop" alt="Bon's Burgers Interior">
+</div>
+<div class="lore-image">
+<img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop" alt="Animatronic Stage">
+</div>
+<div class="lore-image">
+<img src="https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400&h=300&fit=crop" alt="Vintage Restaurant">
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Timeline Section -->
+<section class="section" style="background: var(--darker-bg);">
+<div class="container">
+<h2 class="section-title">TIMELINE</h2>
+<p class="section-subtitle">◆ Key Events in Bon's Burgers History ◆</p>
+<div style="max-width: 800px; margin: 0 auto;">
+<div v-for="(event, index) in timeline" :key="index" style="display: flex; gap: 30px; margin-bottom: 40px; padding: 30px; background: rgba(212, 168, 74, 0.08); border-left: 4px solid var(--vintage-yellow);">
+<div style="min-width: 120px; font-family: 'Press Start 2P', cursive; font-size: 0.8rem; color: var(--vintage-yellow);">{{ event.year }}</div>
+<div>
+<h4 style="font-family: 'Press Start 2P', cursive; font-size: 0.9rem; color: var(--vintage-yellow); margin-bottom: 10px;">{{ event.title }}</h4>
+<p style="font-size: 1.2rem; color: var(--static-gray);">{{ event.description }}</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- CONTACT PAGE -->
+<div v-else-if="currentPage === 'contact'" key="contact">
+<section class="section contact" style="padding-top: 150px;">
+<div class="container">
+<h2 class="section-title">CONTACT US</h2>
+<p class="section-subtitle">◆ We'd Love to Hear From You! ◆</p>
+<div class="contact-content">
+<div class="contact-info">
+<h3><i class="fas fa-info-circle"></i> INFO</h3>
+<div class="contact-item">
+<div class="contact-item-icon">
+<i class="fas fa-map-marker-alt"></i>
+</div>
+<div class="contact-item-text">
+<h4>ADDRESS</h4>
+<p>Brighton, Wisconsin</p>
+</div>
+</div>
+<div class="contact-item">
+<div class="contact-item-icon">
+<i class="fas fa-phone"></i>
+</div>
+<div class="contact-item-text">
+<h4>PHONE</h4>
+<p>(555) BON-BURG</p>
+</div>
+</div>
+<div class="contact-item">
+<div class="contact-item-icon">
+<i class="fas fa-envelope"></i>
+</div>
+<div class="contact-item-text">
+<h4>EMAIL</h4>
+<p>info@bonsburgers.com</p>
+</div>
+</div>
+<div class="contact-item">
+<div class="contact-item-icon">
+<i class="fas fa-clock"></i>
+</div>
+<div class="contact-item-text">
+<h4>HOURS</h4>
+<p>Mon-Sun: 10AM - 10PM</p>
+</div>
+</div>
+<div class="social-links">
+<a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+<a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+<a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+<a href="#" class="social-link"><i class="fab fa-tiktok"></i></a>
+</div>
+</div>
+<div class="contact-form">
+<h3><i class="fas fa-paper-plane"></i> SEND MESSAGE</h3>
+<form @submit.prevent="submitForm">
+<div class="form-row">
+<div class="form-group">
+<label>NAME</label>
+<input type="text" v-model="form.name" placeholder="Your Name" required>
+</div>
+<div class="form-group">
+<label>PHONE</label>
+<input type="tel" v-model="form.phone" placeholder="(555) ___-____" required>
+</div>
+</div>
+<div class="form-group">
+<label>EMAIL</label>
+<input type="email" v-model="form.email" placeholder="your@email.com" required>
+</div>
+<div class="form-group">
+<label>SUBJECT</label>
+<select v-model="form.subject">
+<option value="">Select Subject</option>
+<option value="order">Order Inquiry</option>
+<option value="party">Birthday Party</option>
+<option value="feedback">Feedback</option>
+<option value="other">Other</option>
+</select>
+</div>
+<div class="form-group">
+<label>MESSAGE</label>
+<textarea v-model="form.message" placeholder="Your message..." required></textarea>
+</div>
+<button type="submit" class="btn btn-primary" style="width: 100%;">
+<i class="fas fa-paper-plane"></i> SEND MESSAGE
+</button>
+</form>
+</div>
+</div>
+</div>
+</section>
+</div>
+</transition>
+</main>
+<!-- ==================== CART SIDEBAR ==================== -->
+<div class="cart-overlay" :class="{ active: cartOpen }" @click="toggleCart"></div>
+<div class="cart-sidebar" :class="{ active: cartOpen }">
+<div class="cart-header">
+<h3><i class="fas fa-shopping-cart"></i> YOUR CART</h3>
+<button class="cart-close" @click="toggleCart">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="cart-items">
+<div v-if="cartTotalItems === 0" class="cart-empty">
+<div class="cart-empty-icon">
+<i class="fas fa-shopping-cart"></i>
+</div>
+<p style="font-size: 1.5rem;">YOUR CART IS EMPTY</p>
+<button class="btn btn-primary btn-small" style="margin-top: 20px;" @click="toggleCart; navigateTo('menu')">
+<i class="fas fa-utensils"></i> GO TO MENU
+</button>
+</div>
+<div v-else class="cart-item" v-for="item in cartItems" :key="item.id">
+<div class="cart-item-image">
+<img :src="item.image" :alt="item.name">
+</div>
+<div class="cart-item-details">
+<h4 class="cart-item-title">{{ item.name }}</h4>
+<p class="cart-item-price">${{ item.price }} × {{ cart[item.id] }}</p>
+<div class="cart-item-actions">
+<div class="quantity-controls">
+<button class="quantity-btn" @click="decreaseQuantity(item)">-</button>
+<span class="quantity-value">{{ cart[item.id] }}</span>
+<button class="quantity-btn" @click="increaseQuantity(item)">+</button>
+</div>
+<button class="cart-item-remove" @click="removeFromCart(item)">
+<i class="fas fa-trash"></i>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="cart-footer" v-if="cartTotalItems > 0">
+<div class="cart-summary">
+<div class="cart-summary-row">
+<span>SUBTOTAL:</span>
+<span>${{ cartSubtotal }}</span>
+</div>
+<div class="cart-summary-row">
+<span>TAX:</span>
+<span>${{ tax }}</span>
+</div>
+<div class="cart-summary-row total">
+<span>TOTAL:</span>
+<span>${{ cartTotal }}</span>
+</div>
+</div>
+<button class="cart-checkout-btn" @click="checkout">
+<i class="fas fa-check-circle"></i> CHECKOUT
+</button>
+</div>
+</div>
+<!-- ==================== TOAST NOTIFICATION ==================== -->
+<div class="toast" :class="{ show: toast.show }">
+<i class="toast-icon fas fa-check-circle"></i>
+<span>{{ toast.message }}</span>
+</div>
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+<div class="container">
+<div class="footer-content">
+<div class="footer-section">
+<div class="logo" style="margin-bottom: 20px;">
+<div class="logo-icon">
+<i class="fas fa-carrot"></i>
+</div>
+<div class="logo-text">
+<span style="color: var(--vintage-yellow); font-family: 'Press Start 2P', cursive; font-size: 0.9rem;">BON'S BURGERS</span>
+<span style="font-size: 0.6rem;">EST. 1974</span>
+</div>
+</div>
+<p>Family Fun and More!<br>Where the Showstoppers Perform!</p>
+<div class="bunny-smiles-logo">
+<i class="fas fa-rabbit"></i> BUNNY SMILES INC. © 1974
+</div>
+</div>
+<div class="footer-section">
+<h4>NAVIGATION</h4>
+<ul class="footer-links">
+<li><a href="#" @click.prevent="navigateTo('home')">HOME</a></li>
+<li><a href="#" @click.prevent="navigateTo('menu')">MENU</a></li>
+<li><a href="#" @click.prevent="navigateTo('mascots')">SHOWSTOPPERS</a></li>
+<li><a href="#" @click.prevent="navigateTo('lore')">LORE</a></li>
+<li><a href="#" @click.prevent="navigateTo('contact')">CONTACT</a></li>
+</ul>
+</div>
+<div class="footer-section">
+<h4>MENU</h4>
+<ul class="footer-links">
+<li><a href="#" @click.prevent="activeFilter = 'burgers'; navigateTo('menu')">BURGERS</a></li>
+<li><a href="#" @click.prevent="activeFilter = 'sides'; navigateTo('menu')">SIDES</a></li>
+<li><a href="#" @click.prevent="activeFilter = 'drinks'; navigateTo('menu')">DRINKS</a></li>
+<li><a href="#" @click.prevent="activeFilter = 'kids'; navigateTo('menu')">KIDS MEAL</a></li>
+</ul>
+</div>
+<div class="footer-section">
+<h4>CONTACT</h4>
+<ul class="footer-links">
+<li><i class="fas fa-map-marker-alt"></i> Brighton, Wisconsin</li>
+<li><i class="fas fa-phone"></i> (555) BON-BURG</li>
+<li><i class="fas fa-envelope"></i> info@bonsburgers.com</li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">
+<p>◆ © 1974-1982 Bon's Burgers / Bunny Smiles Inc. ◆ All Rights Reserved.</p>
+<p style="margin-top: 10px; font-size: 0.9rem;">"Creating Smiles Since 1974"</p>
+</div>
+</div>
+</footer>
+<!-- Secret Easter Egg -->
+<div class="secret-message" :class="{ visible: showSecret }">
+he's inside the walls...
+</div>
+</div>
+<script>
+const { createApp, ref, computed, onMounted, onUnmounted } = Vue;
+createApp({
+setup() {
+// ==================== STATE ====================
+const currentPage = ref('home');
+const isScrolled = ref(false);
+const mobileMenuOpen = ref(false);
+const cartOpen = ref(false);
+const activeFilter = ref('all');
+const cart = ref({});
+const toast = ref({ show: false, message: '' });
+const showSecret = ref(false);
+const searchQuery = ref('');
+const searchResults = ref([]);
+const showSearchResults = ref(false);
+const form = ref({
+name: '',
+phone: '',
+email: '',
+subject: '',
+message: ''
+});
+// ==================== MASCOTS DATA ====================
+const mascots = ref([
+{
+id: 1,
+name: 'BON',
+role: 'The Lead Singer',
+description: 'A blue rabbit animatronic and the main mascot of Bon\'s Burgers. The face of the restaurant.',
+fullDescription: 'Bon is the main attraction at Bon\'s Burgers. This lovable blue rabbit leads the Showstoppers with his energetic performances and catchy songs. Children everywhere adore his friendly smile and entertaining shows! Bon was the first animatronic created for the restaurant [[5]].',
+image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop',
+possessed: 'Jack Walten (Rumored)',
+debut: '1974'
+},
+{
+id: 2,
+name: 'BANNY',
+role: 'The Guitarist',
+description: 'A purple rabbit animatronic, Bon\'s sister. Known for her musical talent.',
+fullDescription: 'Banny is Bon\'s sister and the guitarist of the Showstoppers. With her distinctive purple color and musical talent, she brings energy to every performance. Her guitar solos are legendary among Bon\'s Burgers fans [[16]].',
+image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400&h=400&fit=crop',
+possessed: 'Susan Woodings',
+debut: '1974'
+},
+{
+id: 3,
+name: 'SHA',
+role: 'The Keyboardist',
+description: 'A sheep animatronic with a woolly appearance. The gentle soul of the group.',
+fullDescription: 'Sha the Sheep brings warmth and charm to the Showstoppers. As the keyboardist, she creates the melodic backbone of every song. Her gentle personality and musical skills make her a favorite among younger visitors [[4]].',
+image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=400&fit=crop',
+possessed: 'Carly Smythe',
+debut: '1974'
+},
+{
+id: 4,
+name: 'BOOZOO',
+role: 'The Magician',
+description: 'A monkey animatronic with magical talents and a red jacket.',
+fullDescription: 'Boozoo the Monkey is the magician of the group! With his red jacket and top hat, he amazes audiences with his tricks and illusions. His comedy routines and magic shows are the highlight of every visit to Bon\'s Burgers [[8]].',
+image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&h=400&fit=crop',
+possessed: 'Unknown',
+debut: '1974'
+}
+]);
+// ==================== MENU DATA ====================
+const menuItems = ref([
+{
+id: 1,
+name: 'The Bon Burger',
+description: 'Our signature burger with special Bon sauce, lettuce, tomato, and cheese',
+price: 5.99,
+calories: 680,
+category: 'burgers',
+badge: 'SIGNATURE',
+image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop'
+},
+{
+id: 2,
+name: 'Showstopper Deluxe',
+description: 'Double patty, double cheese, bacon, and our secret Showstopper sauce',
+price: 8.99,
+calories: 920,
+category: 'burgers',
+badge: 'POPULAR',
+image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400&h=300&fit=crop'
+},
+{
+id: 3,
+name: 'Banny\'s Chicken',
+description: 'Crispy chicken sandwich with lettuce and mayo',
+price: 6.49,
+calories: 580,
+category: 'burgers',
+badge: '',
+image: 'https://images.unsplash.com/photo-1619250907509-ae8815ed8c2b?w=400&h=300&fit=crop'
+},
+{
+id: 4,
+name: 'Sha\'s Fries',
+description: 'Golden crispy fries with sea salt',
+price: 2.99,
+calories: 380,
+category: 'sides',
+badge: '',
+image: 'https://images.unsplash.com/photo-1573080496987-a199f8cd75ec?w=400&h=300&fit=crop'
+},
+{
+id: 5,
+name: 'Boozoo\'s Rings',
+description: 'Magical onion rings in special batter',
+price: 3.49,
+calories: 420,
+category: 'sides',
+badge: 'NEW',
+image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=400&h=300&fit=crop'
+},
+{
+id: 6,
+name: 'Classic Cola',
+description: 'Ice cold cola, 16oz',
+price: 1.99,
+calories: 210,
+category: 'drinks',
+badge: '',
+image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&h=300&fit=crop'
+},
+{
+id: 7,
+name: 'Showstopper Shake',
+description: 'Vanilla, chocolate, or strawberry milkshake',
+price: 3.99,
+calories: 550,
+category: 'drinks',
+badge: 'KIDS LOVE IT',
+image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&h=300&fit=crop'
+},
+{
+id: 8,
+name: 'Kids Bon Meal',
+description: 'Mini burger, fries, drink, and toy!',
+price: 4.99,
+calories: 450,
+category: 'kids',
+badge: 'KIDS',
+image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop'
+}
+]);
+// ==================== TIMELINE DATA ====================
+const timeline = ref([
+{ year: '1958', title: 'THE IDEA', description: 'Jack Walten and Felix Kranken conceive the idea of an animatronic restaurant during college.' },
+{ year: '1974', title: 'GRAND OPENING', description: 'Bon\'s Burgers officially opens on June 28, 1974 in Brighton, Wisconsin [[25]].' },
+{ year: '1974', title: 'SHOWSTOPPERS DEBUT', description: 'Bon, Banny, Sha, and Boozoo perform their first show to delighted audiences [[6]].' },
+{ year: '1979', title: 'EXPANSION PLANS', description: 'First location expansion planned. Bunny Smiles Inc. grows.' },
+{ year: '1982', title: 'CLOSURE', description: 'Bon\'s Burgers closes. The animatronics are relocated [[27]].' }
+]);
+// ==================== COMPUTED ====================
+const featuredMenu = computed(() => {
+return menuItems.value.filter(item => item.badge).slice(0, 3);
+});
+const filteredMenu = computed(() => {
+if (activeFilter.value === 'all') {
+return menuItems.value;
+}
+return menuItems.value.filter(item => item.category === activeFilter.value);
+});
+const cartItems = computed(() => {
+return menuItems.value.filter(item => cart.value[item.id]);
+});
+const cartTotalItems = computed(() => {
+return Object.values(cart.value).reduce((sum, qty) => sum + qty, 0);
+});
+const cartSubtotal = computed(() => {
+return cartItems.value.reduce((sum, item) => sum + (item.price * cart.value[item.id]), 0);
+});
+const tax = computed(() => {
+return (cartSubtotal.value * 0.08).toFixed(2);
+});
+const cartTotal = computed(() => {
+return (cartSubtotal.value + parseFloat(tax.value)).toFixed(2);
+});
+// ==================== METHODS ====================
+const navigateTo = (page) => {
+currentPage.value = page;
+mobileMenuOpen.value = false;
+window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+const toggleCart = () => {
+cartOpen.value = !cartOpen.value;
+};
+const addToCart = (item) => {
+if (cart.value[item.id]) {
+cart.value[item.id]++;
+} else {
+cart.value[item.id] = 1;
+}
+showToast(`${item.name} ADDED TO CART!`);
+saveCart();
+};
+const increaseQuantity = (item) => {
+cart.value[item.id]++;
+saveCart();
+};
+const decreaseQuantity = (item) => {
+if (cart.value[item.id] > 1) {
+cart.value[item.id]--;
+} else {
+delete cart.value[item.id];
+}
+saveCart();
+};
+const removeFromCart = (item) => {
+delete cart.value[item.id];
+showToast(`${item.name} REMOVED`);
+saveCart();
+};
+const showToast = (message) => {
+toast.value = { show: true, message };
+setTimeout(() => {
+toast.value.show = false;
+}, 3000);
+};
+const checkout = () => {
+if (cartTotalItems.value === 0) return;
+showToast('ORDER PLACED! THANK YOU!');
+cart.value = {};
+cartOpen.value = false;
+saveCart();
+};
+const submitForm = () => {
+showToast('MESSAGE SENT! WE\'LL CONTACT YOU!');
+form.value = { name: '', phone: '', email: '', subject: '', message: '' };
+};
+const saveCart = () => {
+localStorage.setItem('bonsBurgersCart', JSON.stringify(cart.value));
+};
+const loadCart = () => {
+const saved = localStorage.getItem('bonsBurgersCart');
+if (saved) {
+cart.value = JSON.parse(saved);
+}
+};
+const handleScroll = () => {
+isScrolled.value = window.scrollY > 50;
+};
+// SEARCH FUNCTIONALITY
+const handleSearch = () => {
+const query = searchQuery.value.toLowerCase().trim();
+if (query.length < 2) {
+searchResults.value = [];
+return;
+}
+searchResults.value = menuItems.value.filter(item => 
+item.name.toLowerCase().includes(query) || 
+item.description.toLowerCase().includes(query) ||
+item.category.toLowerCase().includes(query)
+);
+};
+const selectSearchResult = (item) => {
+navigateTo('menu');
+activeFilter.value = 'all';
+searchQuery.value = '';
+showSearchResults.value = false;
+setTimeout(() => {
+addToCart(item);
+}, 300);
+};
+const closeSearch = () => {
+showSearchResults.value = false;
+searchQuery.value = '';
+};
+// Easter Egg - Konami Code
+const checkSecret = () => {
+const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+let position = 0;
+document.addEventListener('keydown', (e) => {
+if (e.key === konami[position]) {
+position++;
+if (position === konami.length) {
+showSecret.value = true;
+setTimeout(() => showSecret.value = false, 5000);
+position = 0;
+}
+} else {
+position = 0;
+}
+});
+};
+// Close search when clicking outside
+const handleClickOutside = (event) => {
+const searchContainer = document.querySelector('.search-container');
+if (searchContainer && !searchContainer.contains(event.target)) {
+showSearchResults.value = false;
+}
+};
+// ==================== LIFECYCLE ====================
+onMounted(() => {
+loadCart();
+window.addEventListener('scroll', handleScroll);
+document.addEventListener('click', handleClickOutside);
+checkSecret();
+});
+onUnmounted(() => {
+window.removeEventListener('scroll', handleScroll);
+document.removeEventListener('click', handleClickOutside);
+});
+return {
+currentPage,
+isScrolled,
+mobileMenuOpen,
+cartOpen,
+activeFilter,
+cart,
+toast,
+showSecret,
+form,
+searchQuery,
+searchResults,
+showSearchResults,
+mascots,
+menuItems,
+featuredMenu,
+filteredMenu,
+timeline,
+cartItems,
+cartTotalItems,
+cartSubtotal,
+tax,
+cartTotal,
+navigateTo,
+toggleCart,
+addToCart,
+increaseQuantity,
+decreaseQuantity,
+removeFromCart,
+checkout,
+submitForm,
+handleSearch,
+selectSearchResult,
+closeSearch
+};
+}
+}).mount('#app');
+</script>
+<!-- Code injected by live-server -->
+<script>
+// <![CDATA[  <-- For SVG support
+if ('WebSocket' in window) {
+(function () {
+function refreshCSS() {
+var sheets = [].slice.call(document.getElementsByTagName("link"));
+var head = document.getElementsByTagName("head")[0];
+for (var i = 0; i < sheets.length; ++i) {
+var elem = sheets[i];
+var parent = elem.parentElement || head;
+parent.removeChild(elem);
+var rel = elem.rel;
+if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+}
+parent.appendChild(elem);
+}
+}
+var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+var address = protocol + window.location.host + window.location.pathname + '/ws';
+var socket = new WebSocket(address);
+socket.onmessage = function (msg) {
+if (msg.data == 'reload') window.location.reload();
+else if (msg.data == 'refreshcss') refreshCSS();
+};
+if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+console.log('Live reload enabled.');
+sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+}
+})();
+}
+else {
+console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+}
+// ]]>
+</script>
+</body>
+</html>

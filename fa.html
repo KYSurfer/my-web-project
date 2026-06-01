@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bon's Burgers — Authentication | Bunny Smiles Inc.</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Rubik+Glitch&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ==================== CSS VARIABLES ==================== */
+:root {
+  --bon-blue: #4a7a8c;
+  --bon-blue-dark: #2d4a55;
+  --banny-purple: #7b4a8c;
+  --banny-purple-dark: #4a2d55;
+  --sha-cream: #f5e6d3;
+  --boozoo-red: #8b1a1a;
+  --vintage-yellow: #d4a84a;
+  --analog-green: #3d5c3d;
+  --static-gray: #6b6b6b;
+  --dark-bg: #0a0a0a;
+  --darker-bg: #050505;
+  --text-light: #e8e8e8;
+  --blood-red: #8b0000;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  --glow: 0 0 30px rgba(212, 168, 74, 0.4);
+  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'VT323', monospace;
+  background: var(--dark-bg);
+  color: var(--text-light);
+  line-height: 1.6;
+  overflow-x: hidden;
+  font-size: 18px;
+  min-height: 100vh;
+}
+
+/* ==================== CRT & VHS EFFECTS ==================== */
+.crt-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.95; }
+  50% { opacity: 1; }
+  100% { opacity: 0.96; }
+}
+
+.noise-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.04;
+  background-image: url("image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation: noiseShift 0.5s steps(5) infinite;
+}
+
+@keyframes noiseShift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-5%, -5%); }
+  50% { transform: translate(5%, 5%); }
+  75% { transform: translate(-5%, 5%); }
+}
+
+.vignette {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9997;
+  background: radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ==================== TYPOGRAPHY ==================== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'VT323', monospace;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.glitch-text {
+  font-family: 'Rubik Glitch', cursive;
+  animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+  0%, 90%, 100% { text-shadow: 0 0 0; }
+  92% { text-shadow: 3px 0 var(--blood-red), -3px 0 var(--bon-blue); }
+  94% { text-shadow: -3px 0 var(--blood-red), 3px 0 var(--bon-blue); }
+  96% { text-shadow: 3px 0 var(--blood-red), -3px 0 var(--bon-blue); }
+}
+
+/* ==================== WARNING BANNER ==================== */
+.warning-banner {
+  background: var(--blood-red);
+  color: var(--vintage-yellow);
+  text-align: center;
+  padding: 10px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+  border-bottom: 2px solid var(--vintage-yellow);
+}
+
+/* ==================== AUTH CONTAINER ==================== */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px 50px;
+  background: linear-gradient(135deg, var(--dark-bg) 0%, var(--bon-blue-dark) 50%, var(--banny-purple-dark) 100%);
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 500px;
+  background: rgba(10, 10, 10, 0.9);
+  border: 4px solid var(--vintage-yellow);
+  padding: 40px;
+  box-shadow: 10px 10px 0 var(--blood-red), 0 0 60px rgba(212, 168, 74, 0.3);
+  position: relative;
+}
+
+.auth-box::before {
+  content: '◆ BUNNY SMILES INC. ◆';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--boozoo-red);
+  color: var(--vintage-yellow);
+  padding: 8px 25px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
+  white-space: nowrap;
+  border: 2px solid var(--vintage-yellow);
+}
+
+.auth-logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.auth-logo-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--bon-blue);
+  border: 4px solid var(--vintage-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin: 0 auto 15px;
+  animation: logoGlow 3s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+  0%, 100% { box-shadow: 0 0 15px var(--vintage-yellow); }
+  50% { box-shadow: 0 0 30px var(--vintage-yellow), 0 0 50px var(--bon-blue); }
+}
+
+.auth-logo h1 {
+  font-family: 'Rubik Glitch', cursive;
+  font-size: 2.5rem;
+  color: var(--vintage-yellow);
+  text-shadow: 4px 4px 0 var(--blood-red);
+}
+
+.auth-logo p {
+  color: var(--static-gray);
+  font-size: 1.1rem;
+  margin-top: 10px;
+}
+
+/* ==================== FORM STYLES ==================== */
+.auth-form {
+  margin-top: 30px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.form-label {
+  display: block;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.65rem;
+  color: var(--vintage-yellow);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 15px 18px;
+  background: var(--darker-bg);
+  border: 3px solid var(--bon-blue);
+  color: var(--text-light);
+  font-family: 'VT323', monospace;
+  font-size: 1.3rem;
+  transition: var(--transition);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--vintage-yellow);
+  box-shadow: 0 0 15px rgba(212, 168, 74, 0.3);
+}
+
+.form-input.error {
+  border-color: var(--blood-red);
+}
+
+.form-input.success {
+  border-color: var(--analog-green);
+}
+
+.form-error {
+  color: var(--blood-red);
+  font-size: 1rem;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-hint {
+  color: var(--static-gray);
+  font-size: 0.95rem;
+  margin-top: 8px;
+}
+
+/* ==================== PASSWORD STRENGTH ==================== */
+.password-strength {
+  margin-top: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--static-gray);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+
+.strength-bar.weak { background: var(--blood-red); }
+.strength-bar.medium { background: var(--vintage-yellow); }
+.strength-bar.strong { background: var(--analog-green); }
+
+.strength-text {
+  font-size: 0.9rem;
+  margin-top: 5px;
+  color: var(--static-gray);
+}
+
+/* ==================== BUTTONS ==================== */
+.btn {
+  width: 100%;
+  padding: 18px;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-family: 'VT323', monospace;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: var(--vintage-yellow);
+  color: var(--darker-bg);
+  border: 3px solid var(--vintage-yellow);
+  box-shadow: 6px 6px 0 var(--blood-red);
+}
+
+.btn-primary:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--blood-red);
+}
+
+.btn-primary:disabled {
+  background: var(--static-gray);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--vintage-yellow);
+  border: 3px solid var(--vintage-yellow);
+  box-shadow: 6px 6px 0 var(--bon-blue);
+}
+
+.btn-secondary:hover {
+  background: var(--vintage-yellow);
+  color: var(--darker-bg);
+}
+
+/* ==================== LINKS ==================== */
+.auth-links {
+  text-align: center;
+  margin-top: 25px;
+  padding-top: 25px;
+  border-top: 2px dashed var(--bon-blue);
+}
+
+.auth-link {
+  color: var(--static-gray);
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: var(--transition);
+}
+
+.auth-link:hover {
+  color: var(--vintage-yellow);
+}
+
+.auth-link span {
+  color: var(--vintage-yellow);
+  text-decoration: underline;
+}
+
+/* ==================== STEPS INDICATOR ==================== */
+.steps-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px dashed var(--bon-blue);
+}
+
+.step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.step-number {
+  width: 35px;
+  height: 35px;
+  background: var(--darker-bg);
+  border: 3px solid var(--static-gray);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.7rem;
+  color: var(--static-gray);
+  transition: var(--transition);
+}
+
+.step.active .step-number {
+  border-color: var(--vintage-yellow);
+  color: var(--vintage-yellow);
+  box-shadow: 0 0 15px rgba(212, 168, 74, 0.5);
+}
+
+.step.completed .step-number {
+  background: var(--analog-green);
+  border-color: var(--analog-green);
+  color: var(--darker-bg);
+}
+
+.step-label {
+  font-size: 0.9rem;
+  color: var(--static-gray);
+}
+
+.step.active .step-label {
+  color: var(--vintage-yellow);
+}
+
+/* ==================== SPINNER ==================== */
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--darker-bg);
+  border-top-color: var(--vintage-yellow);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== TOAST ==================== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--bon-blue-dark);
+  color: var(--vintage-yellow);
+  padding: 15px 25px;
+  border: 2px solid var(--vintage-yellow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 3000;
+  transform: translateX(150%);
+  transition: var(--transition);
+  font-size: 1.2rem;
+  box-shadow: 5px 5px 0 var(--blood-red);
+}
+
+.toast.show {
+  transform: translateX(0);
+}
+
+.toast-icon {
+  color: var(--vintage-yellow);
+  font-size: 1.3rem;
+}
+
+.toast.error {
+  background: var(--boozoo-red);
+}
+
+/* ==================== PREFERENCES GRID ==================== */
+.preferences-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.preference-item {
+  padding: 15px;
+  background: var(--darker-bg);
+  border: 2px solid var(--bon-blue);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1rem;
+}
+
+.preference-item:hover {
+  border-color: var(--vintage-yellow);
+  transform: translateY(-3px);
+}
+
+.preference-item.selected {
+  background: rgba(212, 168, 74, 0.2);
+  border-color: var(--vintage-yellow);
+  color: var(--vintage-yellow);
+}
+
+.preference-icon {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .auth-box {
+    padding: 30px 20px;
+  }
+  .auth-logo h1 {
+    font-size: 2rem;
+  }
+  .steps-indicator {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-align: left;
+  }
+  .step-number {
+    margin: 0;
+  }
+}
+</style>
+</head>
+<body>
+<!-- Analog Horror Effects -->
+<div class="crt-overlay"></div>
+<div class="noise-overlay"></div>
+<div class="vignette"></div>
+
+<div id="app">
+  <!-- Warning Banner -->
+  <div class="warning-banner">
+    ⚠ RESTRICTED ACCESS — BUNNY SMILES INC. AUTHENTICATION SYSTEM ⚠
+  </div>
+
+  <!-- Auth Container -->
+  <div class="auth-container">
+    <div class="auth-box">
+      <!-- Logo -->
+      <div class="auth-logo">
+        <div class="auth-logo-icon">
+          <i class="fas fa-carrot"></i>
+        </div>
+        <h1 class="glitch-text">{{ pageTitle }}</h1>
+        <p>◆ BRIGHTON, WISCONSIN ◆</p>
+      </div>
+
+      <!-- LOGIN PAGE -->
+      <div v-if="currentPage === 'login'" class="auth-form">
+        <form @submit.prevent="handleLogin">
+          <div class="form-group">
+            <label class="form-label">► EMAIL</label>
+            <input 
+              type="email" 
+              class="form-input" 
+              v-model="loginForm.email"
+              placeholder="your@email.com"
+              required
+              :class="{ error: errors.email }"
+            >
+            <div class="form-error" v-if="errors.email">
+              <i class="fas fa-exclamation-triangle"></i>
+              {{ errors.email }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">► PASSWORD</label>
+            <input 
+              type="password" 
+              class="form-input" 
+              v-model="loginForm.password"
+              placeholder="••••••••"
+              required
+              :class="{ error: errors.password }"
+            >
+            <div class="form-error" v-if="errors.password">
+              <i class="fas fa-exclamation-triangle"></i>
+              {{ errors.password }}
+            </div>
+          </div>
+
+          <div style="text-align: right; margin-bottom: 20px;">
+            <a href="#" class="auth-link" @click.prevent="navigateTo('recover')" style="font-size: 1rem;">
+              Forgot password?
+            </a>
+          </div>
+
+          <button type="submit" class="btn btn-primary" :disabled="isLoading">
+            <span class="spinner" v-if="isLoading"></span>
+            {{ isLoading ? 'AUTHENTICATING...' : '► LOGIN' }}
+          </button>
+        </form>
+
+        <div class="auth-links">
+          <p class="auth-link">
+            No account? <a href="#" @click.prevent="navigateTo('register')"><span>REGISTER NOW</span></a>
+          </p>
+        </div>
+      </div>
+
+      <!-- REGISTER PAGE (3 Steps) -->
+      <div v-else-if="currentPage === 'register'" class="auth-form">
+        <!-- Steps Indicator -->
+        <div class="steps-indicator">
+          <div class="step" :class="{ active: regStep === 1, completed: regStep > 1 }">
+            <div class="step-number">1</div>
+            <div class="step-label">CONTACTS</div>
+          </div>
+          <div class="step" :class="{ active: regStep === 2, completed: regStep > 2 }">
+            <div class="step-number">2</div>
+            <div class="step-label">PROFILE</div>
+          </div>
+          <div class="step" :class="{ active: regStep === 3 }">
+            <div class="step-number">3</div>
+            <div class="step-label">PREFERENCES</div>
+          </div>
+        </div>
+
+        <form @submit.prevent="handleRegisterStep">
+          <!-- STEP 1: Contacts -->
+          <div v-if="regStep === 1">
+            <div class="form-group">
+              <label class="form-label">► EMAIL</label>
+              <input 
+                type="email" 
+                class="form-input" 
+                v-model="registerForm.email"
+                placeholder="your@email.com"
+                required
+                :class="{ error: errors.email, success: validation.emailValid }"
+                @blur="validateEmail"
+              >
+              <div class="form-error" v-if="errors.email">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{ errors.email }}
+              </div>
+              <div class="form-hint" v-if="validation.emailValid">
+                <i class="fas fa-check-circle"></i> Email available
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">► PASSWORD</label>
+              <input 
+                type="password" 
+                class="form-input" 
+                v-model="registerForm.password"
+                placeholder="Min 8 characters"
+                required
+                :class="{ error: errors.password }"
+                @input="checkPasswordStrength"
+              >
+              <div class="password-strength" v-if="registerForm.password">
+                <div class="strength-bar" :class="passwordStrength.class"></div>
+                <div class="strength-bar" :class="passwordStrength.class"></div>
+                <div class="strength-bar" :class="passwordStrength.class"></div>
+              </div>
+              <div class="strength-text" v-if="registerForm.password">
+                Strength: {{ passwordStrength.text }}
+              </div>
+              <div class="form-error" v-if="errors.password">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{ errors.password }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">► CONFIRM PASSWORD</label>
+              <input 
+                type="password" 
+                class="form-input" 
+                v-model="registerForm.confirmPassword"
+                placeholder="••••••••"
+                required
+                :class="{ error: errors.confirmPassword }"
+              >
+              <div class="form-error" v-if="errors.confirmPassword">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{ errors.confirmPassword }}
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" :disabled="isLoading">
+              <span class="spinner" v-if="isLoading"></span>
+              {{ isLoading ? 'CHECKING...' : '► NEXT STEP' }}
+            </button>
+          </div>
+
+          <!-- STEP 2: Profile -->
+          <div v-if="regStep === 2">
+            <div class="form-group">
+              <label class="form-label">► DISPLAY NAME</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                v-model="registerForm.displayName"
+                placeholder="Your Name"
+                required
+                :class="{ error: errors.displayName }"
+              >
+              <div class="form-error" v-if="errors.displayName">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{ errors.displayName }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">► @USERNAME</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                v-model="registerForm.username"
+                placeholder="@username"
+                required
+                :class="{ error: errors.username, success: validation.usernameValid }"
+                @blur="validateUsername"
+              >
+              <div class="form-hint">Letters, numbers, underscore only</div>
+              <div class="form-error" v-if="errors.username">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{ errors.username }}
+              </div>
+              <div class="form-hint" v-if="validation.usernameValid">
+                <i class="fas fa-check-circle"></i> Username available
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">► AVATAR (OPTIONAL)</label>
+              <input 
+                type="file" 
+                class="form-input" 
+                @change="handleAvatarUpload"
+                accept="image/*"
+              >
+              <div class="form-hint">JPG/PNG, max 5MB</div>
+            </div>
+
+            <div style="display: flex; gap: 15px;">
+              <button type="button" class="btn btn-secondary" @click="regStep = 1">
+                ◄ BACK
+              </button>
+              <button type="submit" class="btn btn-primary" :disabled="isLoading">
+                <span class="spinner" v-if="isLoading"></span>
+                {{ isLoading ? 'CHECKING...' : '► NEXT STEP' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Preferences -->
+          <div v-if="regStep === 3">
+            <div class="form-group">
+              <label class="form-label">► FAVORITE CUISINES</label>
+              <div class="preferences-grid">
+                <div 
+                  class="Preference-item" 
+                  :class="{ selected: registerForm.preferences.includes('burgers') }"
+                  @click="togglePreference('burgers')"
+                >
+                  <span class="preference-icon">🍔</span>
+                  BURGERS
+                </div>
+                <div 
+                  class="Preference-item" 
+                  :class="{ selected: registerForm.preferences.includes('pizza') }"
+                  @click="togglePreference('pizza')"
+                >
+                  <span class="preference-icon">🍕</span>
+                  PIZZA
+                </div>
+                <div 
+                  class="Preference-item" 
+                  :class="{ selected: registerForm.preferences.includes('asian') }"
+                  @click="togglePreference('asian')"
+                >
+                  <span class="preference-icon">🍜</span>
+                  ASIAN
+                </div>
+                <div 
+                  class="Preference-item" 
+                  :class="{ selected: registerForm.preferences.includes('mexican') }"
+                  @click="togglePreference('mexican')"
+                >
+                  <span class="preference-icon">🌮</span>
+                  MEXICAN
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">► DIETARY RESTRICTIONS</label>
+              <div class="preferences-grid">
+                <div 
+                  class="Preference-item" 
+                  :class="{ selected: registerForm.restrictions.includes('nuts') }"
+                  @click="toggleRestriction('nuts')"
+                >
+                  <span class="preference-icon">🥜</span>
+                  NUTS
+                </div>
+                <div 
+                  class="Preference-item" 
+                  :class="{ selected: registerForm.restrictions.includes('gluten') }"
+                  @click="toggleRestriction('gluten')"
+                >
+                  <span class="preference-icon">🌾</span>
+                  GLUTEN
+                </div>
+                <div 
+                  class="Preference-item" 
+                  :class="{ selected: registerForm.restrictions.includes('dairy') }"
+                  @click="toggleRestriction('dairy')"
+                >
+                  <span class="preference-icon">🥛</span>
+                  DAIRY
+                </div>
+                <div 
+                  class="Preference-item" 
+                  :class="{ selected: registerForm.restrictions.includes('vegan') }"
+                  @click="toggleRestriction('vegan')"
+                >
+                  <span class="preference-icon">🌱</span>
+                  VEGAN
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 15px;">
+              <button type="button" class="btn btn-secondary" @click="regStep = 2">
+                ◄ BACK
+              </button>
+              <button type="submit" class="btn btn-primary" :disabled="isLoading">
+                <span class="spinner" v-if="isLoading"></span>
+                {{ isLoading ? 'CREATING ACCOUNT...' : '► CREATE ACCOUNT' }}
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div class="auth-links">
+          <p class="auth-link">
+            Already have an account? <a href="#" @click.prevent="navigateTo('login')"><span>LOGIN</span></a>
+          </p>
+        </div>
+      </div>
+
+      <!-- RECOVER PAGE -->
+      <div v-else-if="currentPage === 'recover'" class="auth-form">
+        <form @submit.prevent="handleRecover">
+          <div class="form-group">
+            <label class="form-label">► EMAIL</label>
+            <input 
+              type="email" 
+              class="form-input" 
+              v-model="recoverForm.email"
+              placeholder="your@email.com"
+              required
+              :class="{ error: errors.email }"
+            >
+            <div class="form-error" v-if="errors.email">
+              <i class="fas fa-exclamation-triangle"></i>
+              {{ errors.email }}
+            </div>
+          </div>
+
+          <div class="form-hint" style="margin-bottom: 25px;">
+            <i class="fas fa-info-circle"></i> We'll send a password reset link to your email
+          </div>
+
+          <button type="submit" class="btn btn-primary" :disabled="isLoading">
+            <span class="spinner" v-if="isLoading"></span>
+            {{ isLoading ? 'SENDING...' : '► SEND RESET LINK' }}
+          </button>
+        </form>
+
+        <div class="auth-links">
+          <p class="auth-link">
+            Remember your password? <a href="#" @click.prevent="navigateTo('login')"><span>LOGIN</span></a>
+          </p>
+        </div>
+      </div>
+
+      <!-- LOGOUT PAGE -->
+      <div v-else-if="currentPage === 'logout'" class="auth-form" style="text-align: center;">
+        <div style="font-size: 4rem; color: var(--vintage-yellow); margin-bottom: 20px;">
+          <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h2 class="glitch-text" style="color: var(--vintage-yellow); margin-bottom: 20px;">
+          LOGGING OUT...
+        </h2>
+        <p style="color: var(--static-gray); margin-bottom: 30px;">
+          Please wait while we secure your session
+        </p>
+        <div class="spinner" style="width: 40px; height: 40px; border-width: 5px; margin: 0 auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" :class="{ show: toast.show, error: toast.type === 'error' }">
+    <i class="toast-icon" :class="toast.icon"></i>
+    <span>{{ toast.message }}</span>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, computed, onMounted } = Vue;
+
+createApp({
+  setup() {
+    // ==================== STATE ====================
+    const currentPage = ref('login');
+    const isLoading = ref(false);
+    const regStep = ref(1);
+    const toast = ref({ show: false, message: '', type: 'success', icon: 'fas fa-check-circle' });
+    const errors = ref({});
+    const validation = ref({ emailValid: false, usernameValid: false });
+    const passwordStrength = ref({ class: '', text: '' });
+
+    // Forms
+    const loginForm = ref({ email: '', password: '' });
+    const registerForm = ref({
+      email: '',
+      password: '',
+      confirmPassword: '',
+      displayName: '',
+      username: '',
+      avatar: null,
+      preferences: [],
+      restrictions: []
+    });
+    const recoverForm = ref({ email: '' });
+
+    // ==================== COMPUTED ====================
+    const pageTitle = computed(() => {
+      const titles = {
+        login: 'LOGIN',
+        register: 'REGISTER',
+        recover: 'RECOVER',
+        logout: 'LOGOUT'
+      };
+      return titles[currentPage.value] || 'AUTH';
+    });
+
+    // ==================== METHODS ====================
+    const navigateTo = (page) => {
+      currentPage.value = page;
+      errors.value = {};
+      validation.value = { emailValid: false, usernameValid: false };
+      
+      // Redirect logic
+      const isAuthenticated = localStorage.getItem('authToken');
+      if (isAuthenticated && page !== 'logout') {
+        showToast('Already logged in!', 'info');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+        return;
+      }
+    };
+
+    const showToast = (message, type = 'success') => {
+      const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+      };
+      toast.value = { show: true, message, type, icon: icons[type] };
+      setTimeout(() => { toast.value.show = false; }, 3000);
+    };
+
+    const validateEmail = async () => {
+      if (!registerForm.value.email) return;
+      
+      isLoading.value = true;
+      try {
+        // API call: POST /api/auth/check-email
+        const response = await fetch('/api/auth/check-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: registerForm.value.email })
+        });
+        const data = await response.json();
+        
+        validation.value.emailValid = data.available;
+        errors.value.email = data.available ? '' : 'Email already registered';
+      } catch (err) {
+        // Demo mode (no backend)
+        validation.value.emailValid = !registerForm.value.email.includes('taken');
+        errors.value.email = validation.value.emailValid ? '' : 'Email already registered';
+      }
+      isLoading.value = false;
+    };
+
+    const validateUsername = async () => {
+      if (!registerForm.value.username) return;
+      
+      isLoading.value = true;
+      try {
+        // API call: GET /api/auth/check-tag?username=...
+        const response = await fetch(`/api/auth/check-tag?username=${registerForm.value.username}`);
+        const data = await response.json();
+        
+        validation.value.usernameValid = data.available;
+        errors.value.username = data.available ? '' : 'Username already taken';
+      } catch (err) {
+        // Demo mode
+        validation.value.usernameValid = !registerForm.value.username.includes('taken');
+        errors.value.username = validation.value.usernameValid ? '' : 'Username already taken';
+      }
+      isLoading.value = false;
+    };
+
+    const checkPasswordStrength = () => {
+      const pwd = registerForm.value.password;
+      let score = 0;
+      
+      if (pwd.length >= 8) score++;
+      if (/[A-Z]/.test(pwd)) score++;
+      if (/[0-9]/.test(pwd)) score++;
+      if (/[^A-Za-z0-9]/.test(pwd)) score++;
+      
+      if (score <= 1) {
+        passwordStrength.value = { class: 'weak', text: 'WEAK' };
+      } else if (score <= 2) {
+        passwordStrength.value = { class: 'medium', text: 'MEDIUM' };
+      } else {
+        passwordStrength.value = { class: 'strong', text: 'STRONG' };
+      }
+    };
+
+    const handleAvatarUpload = (e) => {
+      const file = e.target.files[0];
+      if (file && file.size > 5 * 1024 * 1024) {
+        errors.value.avatar = 'File too large (max 5MB)';
+        return;
+      }
+      registerForm.value.avatar = file;
+    };
+
+    const togglePreference = (pref) => {
+      const idx = registerForm.value.preferences.indexOf(pref);
+      if (idx > -1) {
+        registerForm.value.preferences.splice(idx, 1);
+      } else {
+        registerForm.value.preferences.push(pref);
+      }
+    };
+
+    const toggleRestriction = (res) => {
+      const idx = registerForm.value.restrictions.indexOf(res);
+      if (idx > -1) {
+        registerForm.value.restrictions.splice(idx, 1);
+      } else {
+        registerForm.value.restrictions.push(res);
+      }
+    };
+
+    const handleLogin = async () => {
+      errors.value = {};
+      isLoading.value = true;
+      
+      try {
+        // API call: POST /api/auth/login
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(loginForm.value)
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          showToast('Welcome back!', 'success');
+          setTimeout(() => { window.location.href = '/'; }, 1000);
+        } else {
+          const data = await response.json();
+          errors.value.password = data.message || 'Invalid credentials';
+          showToast('Login failed', 'error');
+        }
+      } catch (err) {
+        // Demo mode
+        if (loginForm.value.email && loginForm.value.password) {
+          localStorage.setItem('authToken', 'demo-token');
+          showToast('Welcome back!', 'success');
+          setTimeout(() => { window.location.href = '/'; }, 1000);
+        } else {
+          errors.value.email = 'Email required';
+          errors.value.password = 'Password required';
+          showToast('Please fill all fields', 'error');
+        }
+      }
+      isLoading.value = false;
+    };
+
+    const handleRegisterStep = async () => {
+      errors.value = {};
+      
+      if (regStep.value === 1) {
+        // Validate step 1
+        if (!registerForm.value.email || !registerForm.value.password || !registerForm.value.confirmPassword) {
+          showToast('Please fill all fields', 'error');
+          return;
+        }
+        if (registerForm.value.password !== registerForm.value.confirmPassword) {
+          errors.value.confirmPassword = 'Passwords do not match';
+          return;
+        }
+        if (passwordStrength.value.class === 'weak') {
+          errors.value.password = 'Password too weak';
+          return;
+        }
+        regStep.value = 2;
+        showToast('Step 1 completed!', 'success');
+      } 
+      else if (regStep.value === 2) {
+        // Validate step 2
+        if (!registerForm.value.displayName || !registerForm.value.username) {
+          showToast('Please fill all fields', 'error');
+          return;
+        }
+        regStep.value = 3;
+        showToast('Step 2 completed!', 'success');
+      } 
+      else if (regStep.value === 3) {
+        // Final submission
+        isLoading.value = true;
+        try {
+          // API call: POST /api/auth/register
+          const formData = new FormData();
+          formData.append('email', registerForm.value.email);
+          formData.append('password', registerForm.value.password);
+          formData.append('display_name', registerForm.value.displayName);
+          formData.append('username', registerForm.value.username);
+          if (registerForm.value.avatar) {
+            formData.append('avatar', registerForm.value.avatar);
+          }
+          formData.append('preferences', JSON.stringify(registerForm.value.preferences));
+          formData.append('restrictions', JSON.stringify(registerForm.value.restrictions));
+          
+          const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (response.ok) {
+            showToast('Account created! Welcome!', 'success');
+            setTimeout(() => { window.location.href = '/'; }, 1500);
+          } else {
+            const data = await response.json();
+            showToast(data.message || 'Registration failed', 'error');
+          }
+        } catch (err) {
+          // Demo mode
+          showToast('Account created! Welcome!', 'success');
+          setTimeout(() => { window.location.href = '/'; }, 1500);
+        }
+        isLoading.value = false;
+      }
+    };
+
+    const handleRecover = async () => {
+      errors.value = {};
+      isLoading.value = true;
+      
+      try {
+        // API call: POST /api/auth/recover
+        const response = await fetch('/api/auth/recover', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: recoverForm.value.email })
+        });
+        
+        if (response.ok) {
+          showToast('Reset link sent! Check your email', 'success');
+          setTimeout(() => { navigateTo('login'); }, 2000);
+        } else {
+          errors.value.email = 'Email not found';
+          showToast('Email not found', 'error');
+        }
+      } catch (err) {
+        // Demo mode
+        showToast('Reset link sent! Check your email', 'success');
+        setTimeout(() => { navigateTo('login'); }, 2000);
+      }
+      isLoading.value = false;
+    };
+
+    // ==================== LIFECYCLE ====================
+    onMounted(() => {
+      // Check if already logged in
+      const token = localStorage.getItem('authToken');
+      if (token && currentPage.value !== 'logout') {
+        // User is already logged in, redirect to home
+        // This is handled by navigateTo()
+      }
+    });
+
+    return {
+      currentPage,
+      isLoading,
+      regStep,
+      toast,
+      errors,
+      validation,
+      passwordStrength,
+      loginForm,
+      registerForm,
+      recoverForm,
+      pageTitle,
+      navigateTo,
+      showToast,
+      validateEmail,
+      validateUsername,
+      checkPasswordStrength,
+      handleAvatarUpload,
+      togglePreference,
+      toggleRestriction,
+      handleLogin,
+      handleRegisterStep,
+      handleRecover
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
