@@ -50,7 +50,7 @@
 
     <template v-else>
       <div class="grid">
-        <div v-for="item in filtered" :key="item.id" class="card">
+<div v-for="item in paginatedItems" :key="item.id" class="card">
           <img 
             :src="item.image" 
             :alt="item.name" 
@@ -95,6 +95,27 @@
           </div>
           <button @click="goTo(item.id)" class="card-btn">► Подробнее</button>
         </div>
+      </div>
+      <div v-if="totalPages > 1" class="pagination">
+        <button 
+          @click="goToPage(currentPage - 1)" 
+          :disabled="currentPage === 1"
+          class="pagination-btn"
+        >
+          ◄ Назад
+        </button>
+        
+        <span class="pagination-info">
+          Страница {{ currentPage }} из {{ totalPages }}
+        </span>
+        
+        <button 
+          @click="goToPage(currentPage + 1)" 
+          :disabled="currentPage === totalPages"
+          class="pagination-btn"
+        >
+          Вперёд ►
+        </button>
       </div>
     </template>
   </main>
@@ -224,6 +245,35 @@ watch(() => products.value, () => { if (auth.isAuthenticated) loadProductStates(
 
 onMounted(() => {
   if (auth.isAuthenticated) loadProductStates()
+})
+
+// 🔥 ПАГИНАЦИЯ
+const currentPage = ref(1)
+const itemsPerPage = 9 // 3 ряда × 3 колонки
+
+// Вычисляем товары для текущей страницы
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return filtered.value.slice(start, end)
+})
+
+// Общее количество страниц
+const totalPages = computed(() => 
+  Math.ceil(filtered.value.length / itemsPerPage)
+)
+
+// Переход на страницу
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+    window.scrollTo({ top: 0, behavior: 'smooth' }) // Прокрутка вверх
+  }
+}
+
+// Сброс страницы при изменении фильтров
+watch(() => [applied.value.min, applied.value.max, applied.value.date], () => {
+  currentPage.value = 1
 })
 </script>
 
